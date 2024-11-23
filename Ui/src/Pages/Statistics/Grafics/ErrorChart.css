@@ -1,0 +1,27 @@
+.TreemapStyle{
+    font-family: sans-serif;
+    
+}
+
+.chart-container {
+    position: relative;
+  }
+  
+  .legend {
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .legend ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .legend li {
+    margin-bottom: 5px;
+  }

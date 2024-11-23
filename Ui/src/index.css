@@ -1,0 +1,42 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  
+}
+
+body{
+
+}
+
+
+/* Позиционирование */
+
+.Row_SB{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+}
+.Row_SA{
+
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.Col_SB{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+.Col_SA{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+/* Блоки с стандартными размерами */
+
