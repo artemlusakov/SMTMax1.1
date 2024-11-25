@@ -1,5 +1,6 @@
 import React from 'react';
 import Chart from 'react-apexcharts';
+import './CompiledProductChartDonats.css'
 
 // Определение интерфейса пропсов компонента
 interface ChartDonatsProps {
@@ -15,7 +16,7 @@ interface ChartDonatsProps {
 export default function ChartDonats({ seriesData }: ChartDonatsProps): JSX.Element {
   // Define chart options
   const chartOptions = {
-    labels: ['Completed', 'Not Completed'], // Labels for chart sectors
+    labels: ['Сделано', 'Не сделано'], // Labels for chart sectors
     colors: ['#34C759', '#FF0000'], // Colors for sectors: green for completed, red for not completed
     plotOptions: {
       pie: { // Common settings for circular charts
@@ -31,7 +32,7 @@ export default function ChartDonats({ seriesData }: ChartDonatsProps): JSX.Eleme
       breakpoint: 500,
       options: {
         chart: { // Settings for small screens
-          width: 10 // Reduces chart width to 200 pixels
+          width: 100 
         }
       }
     }],

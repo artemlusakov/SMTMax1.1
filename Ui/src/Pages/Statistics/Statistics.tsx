@@ -1,34 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import Navigate from '../../Components/Navigate/Navigate'
 import './Statistics.css'
-import ErrorChart from './Grafics/ErrorChart'
+
+// import из стора
 import { useCompletedTasks } from '../../Store/CompletedTasks/CompletedTasks';
 
-import ChartDonats from './Grafics/CompiledProductChartDonats';
+
+
+// import графиков
+import ChartDonats from './Grafics/CompiledProductChartDonats/CompiledProductChartDonats';
+import TreemMap from './Grafics/TreemMap/TreemMap';
+import { useAllError } from './AllError';
+import ErrorArr from '../../Components/ErrorArr/ErrorArr';
+
+
+
+
 
 export default function Statistics() {
 
+  const { errorData, fetchErrorData } = useAllError();
 
-
-  const chartData = [
-    {
-      children: [
-        { name: '[5805]', size: 2138 },
-        { name: '[5101]', size: 1000 },
-        { name: '[5804]', size: 1500 },
-        { name: '[aa1f]', size: 100 },
-        { name: '[5805]', size: 500 },
-        { name: '[fe02]', size: 900 },
-        { name: '[ab0d]', size: 444 },
-        { name: '[aa1f]', size: 123 },
-        { name: '[5201]', size: 50 },
-        { name: '[aa1f]', size: 100 },
-        { name: '[fe02]', size: 500 },
-        { name: '[5804]', size: 900 },
-        
-      ]
-    }
-  ];
+  useEffect(() => {
+    fetchErrorData();
+  }, []);
 
   const { completedTasks, fetchCompletedTasks } = useCompletedTasks();
   React.useEffect(() => {
@@ -40,7 +35,7 @@ export default function Statistics() {
     useEffect(() => {
       const input = document.getElementById('notDone')
       const handleInput = () => {
-        setNotDoneValue(input?.valueAsNumber || 0)
+        setNotDoneValue(input?.valueAsNumber)
       }
       
       input?.addEventListener('input', handleInput)
@@ -65,7 +60,7 @@ export default function Statistics() {
               <div className='Statistics_Box-min Col_SA'>
                 <h4>Сделано деталей {completedTasks}</h4>
                   <ChartDonats seriesData={{ done: completedTasks, notDone: notDoneValue || 0 }} />
-                  <input type="number" id='notDone' value={notDoneValue} onChange={(e) => setNotDoneValue(e.target.valueAsNumber)} />
+                  <input type="number" placeholder='Желаемое количество деталей' value={notDoneValue} onChange={(e) => setNotDoneValue(e.target.valueAsNumber)} />
               </div>
             </div>
 
@@ -81,7 +76,7 @@ export default function Statistics() {
 
             <div className='Row_SB Row_Col-1'>
               <div className='Statistics_Box-min'>
-                <h4></h4>
+
               </div>
               <div className='Statistics_Box-min'>
 
@@ -92,12 +87,38 @@ export default function Statistics() {
         <div className='Statistics_Col-2 Col_SB'>
           <div className='Row_Col-2'>
             <div className='Statistics_Box-max'>
-              <ErrorChart data={chartData} />
+
+              <TreemMap data = {
+                                [
+                                  { x: 'New Delhi', y: 1000 },
+                                  { x: 'Kolkata', y: 2000 },
+                                  { x: 'Mumbai', y: 1100 },
+                                  { x: 'Ahmedabad', y: 200 },
+                                  { x: 'Bangaluru', y: 1500 },
+                                  { x: 'Pune', y: 301 },
+                                  { x: 'Chennai', y: 710 },
+                                  { x: 'Jaipur', y: 3000 },
+                                  { x: 'Surat', y: 441 },
+                                  { x: 'Hyderabad', y: 168 },
+                                  { x: 'Lucknow', y: 228 },
+                                  { x: 'Indore', y: 193 },
+                                  { x: 'Kanpur', y: 2904 }
+                                ]
+                              }/>
+
+            {/* {errorData.length > 0 ? (
+                            <TreemMap data={errorData} />
+                          ) : (
+                            <p>Loading...</p>
+                          )} */}
+
             </div>
           </div>
 
           <div className='Row_Col-2 Row_SB'>
-            <div className='Statistics_Box-min'></div>
+            <div className='Statistics_Box-min'>
+              <ErrorArr/>
+            </div>
 
             <div className='Statistics_Box-min'></div>
           </div>
