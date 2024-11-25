@@ -1,6 +1,6 @@
 // src/Pages/Statistics/Grafics/TreemMap/TreemMap.tsx
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 
 interface TreemapProps {
@@ -11,7 +11,7 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
   const [options, setOptions] = React.useState({
     chart: {
       type: 'treemap' as 'treemap',
-      height: 400,
+      height: 300,
     },
     title: {
       text: 'Error Statistics',
@@ -55,7 +55,7 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
       options={options} 
       series={[{ data }]} 
       type="treemap" 
-      height={400}/>
+      height={420}/>
     </div>
   );
 };

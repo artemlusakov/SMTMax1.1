@@ -14,6 +14,9 @@ import { useAllError } from './AllError';
 import ErrorArr from '../../Components/ErrorArr/ErrorArr';
 
 
+import TreemMapArr from '../../Store/TreemMap/TreemMapArr';
+
+
 
 
 
@@ -87,30 +90,8 @@ export default function Statistics() {
         <div className='Statistics_Col-2 Col_SB'>
           <div className='Row_Col-2'>
             <div className='Statistics_Box-max'>
-
-              <TreemMap data = {
-                                [
-                                  { x: 'New Delhi', y: 1000 },
-                                  { x: 'Kolkata', y: 2000 },
-                                  { x: 'Mumbai', y: 1100 },
-                                  { x: 'Ahmedabad', y: 200 },
-                                  { x: 'Bangaluru', y: 1500 },
-                                  { x: 'Pune', y: 301 },
-                                  { x: 'Chennai', y: 710 },
-                                  { x: 'Jaipur', y: 3000 },
-                                  { x: 'Surat', y: 441 },
-                                  { x: 'Hyderabad', y: 168 },
-                                  { x: 'Lucknow', y: 228 },
-                                  { x: 'Indore', y: 193 },
-                                  { x: 'Kanpur', y: 2904 }
-                                ]
-                              }/>
-
-            {/* {errorData.length > 0 ? (
-                            <TreemMap data={errorData} />
-                          ) : (
-                            <p>Loading...</p>
-                          )} */}
+              
+              <TreemMap data={TreemMapArr()} />              
 
             </div>
           </div>
@@ -120,7 +101,9 @@ export default function Statistics() {
               <ErrorArr/>
             </div>
 
-            <div className='Statistics_Box-min'></div>
+            <div className='Statistics_Box-min'>
+       
+            </div>
           </div>
         </div>
       </div>
