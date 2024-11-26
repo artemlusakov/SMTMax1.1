@@ -1,5 +1,3 @@
-// src/Pages/Statistics/AllError.tsx
-
 import { create } from "zustand";
 
 interface AllErrorState {

@@ -60,7 +60,7 @@ export default function Statistics() {
                 <h4>Поля ввода</h4>
               </div>
 
-              <div className='Statistics_Box-min Col_SA'>
+              <div className='Statistics_Box-min Col_SA InputNum'>
                 <h4>Сделано деталей {completedTasks}</h4>
                   <ChartDonats seriesData={{ done: completedTasks, notDone: notDoneValue || 0 }} />
                   <input type="number" placeholder='Желаемое количество деталей' value={notDoneValue} onChange={(e) => setNotDoneValue(e.target.valueAsNumber)} />

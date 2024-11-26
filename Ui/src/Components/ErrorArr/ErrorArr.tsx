@@ -184,8 +184,16 @@ const ErrorArr = () => {
     const [inputCode, setInputCode] = useState('');
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setInputCode(event.target.value.toLocaleLowerCase());
-    };
+        const value = event.target.value;
+        const filteredValue = value.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        
+        if (filteredValue !== value) {
+          event.preventDefault();
+        }
+        
+        setInputCode(filteredValue);
+      };
+
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {

@@ -1,5 +1,3 @@
-// src/Pages/Statistics/Grafics/TreemMap/TreemMap.tsx
-
 import React, { useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 
@@ -14,11 +12,11 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
       height: 300,
     },
     title: {
-      text: 'Error Statistics',
+      text: 'Статистика ошибок',
     },
     dataLabels: {
       style: {
-        colors: [ '#212121']
+        colors: [ '#fff']
       }
     },
     
@@ -27,10 +25,10 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
 
   React.useEffect(() => {
     if (!data || data.length === 0) {
-      console.warn('Данные отсутствуют или пусты');
+      console.warn('Данные отсутствуют или пусты не могу отрисовать график');
       setOptions(prev => ({
         ...prev,
-        title: { text: 'Нет данных для отображения' },
+        title: { text: 'Статистика ошибок' },
       }));
       return;
     }

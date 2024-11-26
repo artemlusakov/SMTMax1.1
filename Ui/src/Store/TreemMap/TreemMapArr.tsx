@@ -12,9 +12,12 @@ interface DataItem {
 }
 
 const getErrorCodeFromMessage = (message: string): string | null => {
-  const match = message.match(/\[(\w+)\]/);
-  if (match) {
-    return match[1];
+  const warningMatch = message.match(/<WARNING>/);
+  const freezeMatch = message.match(/<FREEZE>/);
+
+  if (warningMatch || freezeMatch) {
+    const match = message.match(/\[(\w+)\]/);
+    return match ? match[1] : null;
   }
   return null;
 };
