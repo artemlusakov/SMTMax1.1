@@ -22,7 +22,7 @@ const getErrorCodeFromMessage = (message: string): string | null => {
   return null;
 };
 
-const TreemMapArr: React.FC = () => {
+const TreemMapArr = () => {
   const [data, setData] = React.useState<{ x: string; y: number }[]>([]);
 
   useEffect(() => {

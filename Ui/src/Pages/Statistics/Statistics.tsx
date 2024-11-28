@@ -4,19 +4,18 @@ import './Statistics.css'
 
 // import из стора
 import { useCompletedTasks } from '../../Store/CompletedTasks/CompletedTasks';
-
+import { useAllError } from './AllError';
 
 
 // import графиков
 import ChartDonats from './Grafics/CompiledProductChartDonats/CompiledProductChartDonats';
 import TreemMap from './Grafics/TreemMap/TreemMap';
-import { useAllError } from './AllError';
 import ErrorArr from './ErrorArr/ErrorArr';
+import FiderChartDonats from './Grafics/FiderChartDonats/FiderChartDonats';
 
-
-import TreemMapArr from '../../Store/TreemMap/TreemMapArr';
+// import данных
 import DateAllWorks from './DateTime/DateAllWorks';
-
+import TreemMapArr from '../../Store/TreemMap/TreemMapArr';
 
 
 
@@ -58,7 +57,8 @@ export default function Statistics() {
         <div className='Statistics_Col-1 Col_SB'>
             <div className='Row_SB Row_Col-1'>
               <div className='Statistics_Box-min'>
-                <h4>Поля ввода</h4>
+                <h4>Ошибки по фидеру</h4>
+                <FiderChartDonats/>
               </div>
 
               <div className='Statistics_Box-min Col_SA InputNum'>

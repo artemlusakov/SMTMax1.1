@@ -9,7 +9,7 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
   const [options, setOptions] = React.useState({
     chart: {
       type: 'treemap' as 'treemap',
-      height: 300,
+      height: '100%',
     },
     title: {
       text: 'Статистика ошибок',
@@ -53,7 +53,8 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
       options={options} 
       series={[{ data }]} 
       type="treemap" 
-      height={420}/>
+      height={425}
+      />
     </div>
   );
 };
