@@ -228,9 +228,7 @@ const ErrorArr = () => {
       }, []);
       
       if(isLoading){
-        return(
-                'load'
-        )
+        return <div>Загрузка...</div>;
       }
     return (
         <div className={"ErrorArr"}>

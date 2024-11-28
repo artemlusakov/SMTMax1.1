@@ -11,10 +11,11 @@ import { useCompletedTasks } from '../../Store/CompletedTasks/CompletedTasks';
 import ChartDonats from './Grafics/CompiledProductChartDonats/CompiledProductChartDonats';
 import TreemMap from './Grafics/TreemMap/TreemMap';
 import { useAllError } from './AllError';
-import ErrorArr from '../../Components/ErrorArr/ErrorArr';
+import ErrorArr from './ErrorArr/ErrorArr';
 
 
 import TreemMapArr from '../../Store/TreemMap/TreemMapArr';
+import DateAllWorks from './DateTime/DateAllWorks';
 
 
 
@@ -102,7 +103,7 @@ export default function Statistics() {
             </div>
 
             <div className='Statistics_Box-min'>
-       
+              <DateAllWorks/>
             </div>
           </div>
         </div>
