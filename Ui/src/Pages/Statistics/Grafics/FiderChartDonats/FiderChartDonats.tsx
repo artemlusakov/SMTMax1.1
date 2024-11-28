@@ -31,7 +31,7 @@ export default function FiderChartDonats() {
                 setData(data);
                 // Генерируем уникальные labels на основе данных
                 const uniqueLabels = Array.from(new Set(data.map(item => item.head)));
-                setLabels(uniqueLabels);
+
             })
             .catch(error => console.error('Error fetching data:', error));
     }, []);
@@ -64,6 +64,11 @@ export default function FiderChartDonats() {
 
     useEffect(() => {
         console.log('Warning count or Filtered count changed');
+
+        const labelsAllWarning:string = 'Количество ошибок со всеми Warning';
+        const labelsWarningHead:string = `Количество WARNING с ${`${selectedHead} и ${selectFider ? `Fider ${selectFider}` : "Без Fider"}`}`
+
+        setLabels([labelsAllWarning,labelsWarningHead]);
     }, [warningCount, filteredCount]);
 
     const chartOptions: any = useMemo(() => ({

@@ -3,7 +3,7 @@ import Navigate from '../../Components/Navigate/Navigate'
 import './Statistics.css'
 
 // import из стора
-import { useCompletedTasks } from '../../Store/CompletedTasks/CompletedTasks';
+import { useCompletedTasks } from '../../Store/CompletedTasks/useCompletedTasks';
 import { useAllError } from './AllError';
 
 
@@ -15,7 +15,7 @@ import FiderChartDonats from './Grafics/FiderChartDonats/FiderChartDonats';
 
 // import данных
 import DateAllWorks from './DateTime/DateAllWorks';
-import TreemMapArr from '../../Store/TreemMap/TreemMapArr';
+import TreemMapArr from '../../Store/TreemMap/useTreemMapArr';
 
 
 
