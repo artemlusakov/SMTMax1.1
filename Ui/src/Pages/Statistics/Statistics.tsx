@@ -2,90 +2,96 @@ import React, { useEffect, useState } from 'react'
 import Navigate from '../../Components/Navigate/Navigate'
 import './Statistics.css'
 
-// import из стора
+// Импорт хуков
 import { useCompletedTasks } from '../../Store/CompletedTasks/useCompletedTasks';
 import { useAllError } from './AllError';
 
-
-// import графиков
+// Импорт компонентов графиков
 import ChartDonats from './Grafics/CompiledProductChartDonats/CompiledProductChartDonats';
 import TreemMap from './Grafics/TreemMap/TreemMap';
 import ErrorArr from './ErrorArr/ErrorArr';
 import FiderChartDonats from './Grafics/FiderChartDonats/FiderChartDonats';
 
-// import данных
+// Импорт данных
 import DateAllWorks from './DateTime/DateAllWorks';
 import TreemMapArr from '../../Store/TreemMap/useTreemMapArr';
 
-
-
-
 export default function Statistics() {
-
+  // Получаем данные об ошибках
   const { errorData, fetchErrorData } = useAllError();
 
   useEffect(() => {
     fetchErrorData();
   }, []);
 
+  // Получаем данные о завершенных задачах
   const { completedTasks, fetchCompletedTasks } = useCompletedTasks();
-  React.useEffect(() => {
+
+  useEffect(() => {
     fetchCompletedTasks();
   }, []);
 
-  const [notDoneValue, setNotDoneValue] = useState(0)
-  
-    useEffect(() => {
-      const input = document.getElementById('notDone')
-      const handleInput = () => {
-        setNotDoneValue(input?.valueAsNumber)
-      }
-      
-      input?.addEventListener('input', handleInput)
-      
-      return () => {
-        input?.removeEventListener('input', handleInput)
-      }
-    }, [])
+  // Состояние для хранения общего количества деталей
+  const [TotalItemsValue, setTotalItemsValue] = useState(0);
 
+  useEffect(() => {
+    const input = document.getElementById('notDone');
+    const handleInput = () => {
+      setTotalItemsValue(input?.valueAsNumber);
+    }
+
+    input?.addEventListener('input', handleInput)
+
+    return () => {
+      input?.removeEventListener('input', handleInput)
+    }
+  }, []);
 
   return (
     <div>
       <Navigate/>
-      
+
       <div className='Statistics Row_SA'>
         <div className='Statistics_Col-1 Col_SB'>
-            <div className='Row_SB Row_Col-1'>
-              <div className='Statistics_Box-min'>
-                <h4>Ошибки по фидеру</h4>
-                <FiderChartDonats/>
-              </div>
-
-              <div className='Statistics_Box-min Col_SA InputNum'>
-                <h4>Сделано деталей {completedTasks}</h4>
-                  <ChartDonats seriesData={{ done: completedTasks, notDone: notDoneValue || 0 }} />
-                  <input type="number" placeholder='Желаемое количество деталей' value={notDoneValue} onChange={(e) => setNotDoneValue(e.target.valueAsNumber)} />
-              </div>
+          <div className='Row_SB Row_Col-1'>
+            <div className='Statistics_Box-min'>
+              <h4>Ошибки по фидеру</h4>
+              <FiderChartDonats/>
             </div>
 
-            <div className='Row_SB Row_Col-1'>
-              <div className='Statistics_Box-min'>
-                <h4>Деталей в минуту</h4>
-              </div>
+            <div className='Statistics_Box-min Col_SA InputNum'>
+              <h4>Сделано деталей {completedTasks}</h4>
+              <ChartDonats 
+                seriesData={{ done: completedTasks, totalItems: TotalItemsValue || 0 }} 
+                totalItemsValue={TotalItemsValue}
+              />
+              <input 
+                type="number" 
+                placeholder='Желаемое количество деталей' 
+                value={TotalItemsValue} 
+                onChange={(e) => setTotalItemsValue(e.target.valueAsNumber)}
+              />
+            </div>
+          </div>
 
-              <div className='Statistics_Box-min'>
-                <h4>Статистика за прошлую смену</h4>
-              </div>
+          <div className='Row_SB Row_Col-1'>
+            <div className='Statistics_Box-min'>
+              <h4>Деталей в минуту</h4>
             </div>
 
-            <div className='Row_SB Row_Col-1'>
-              <div className='Statistics_Box-min'>
-
-              </div>
-              <div className='Statistics_Box-min'>
-
-              </div>
+            <div className='Statistics_Box-min'>
+              <h4>Статистика за прошлую смену</h4>
             </div>
+          </div>
+
+          <div className='Row_SB Row_Col-1'>
+            <div className='Statistics_Box-min'>
+
+            </div>
+            <div className='Statistics_Box-min'>
+
+            </div>
+          </div>
         </div>
 
         <div className='Statistics_Col-2 Col_SB'>
@@ -93,7 +99,6 @@ export default function Statistics() {
             <div className='Statistics_Box-max'>
               
               <TreemMap data={TreemMapArr()} />              
-
             </div>
           </div>
 
@@ -109,5 +114,5 @@ export default function Statistics() {
         </div>
       </div>
     </div>
-  )
+  );
 }
