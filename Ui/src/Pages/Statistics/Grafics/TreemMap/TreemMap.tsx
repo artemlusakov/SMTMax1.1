@@ -8,22 +8,53 @@ interface TreemapProps {
 const TreemMap: React.FC<TreemapProps> = ({ data }) => {
   const [options, setOptions] = React.useState({
     chart: {
-      type: 'treemap' as 'treemap',
-      height: '100%',
+      height: 350,
+      type: 'treemap',
     },
     title: {
-      text: 'Статистика ошибок',
+      text: 'Статистика ошибок'
     },
-    dataLabels: {
-      style: {
-        colors: [ '#fff']
+    legend: {
+      show: false
+    },
+    plotOptions: {
+      treemap: {
+        enableShades: true,
+        shadeIntensity: 0.5,
+        colorScale: {
+          ranges: [
+            {
+              from: 0,
+              to: 50,
+              color: '#00FF00'
+            },
+            {
+              from: 50,
+              to: 100,
+              color: '#FFA500'
+            },
+            {
+              from: 100,
+              to: 300,
+              color: '#FF0000'
+            }
+          ]
+        }
       }
     },
-    
-    colors: [],
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '12px',
+      },
+      formatter: function(text, op) {
+        return [text, op.value]
+      },
+      offsetY: -4
+    }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!data || data.length === 0) {
       console.warn('Данные отсутствуют или пусты не могу отрисовать график');
       setOptions(prev => ({
@@ -33,27 +64,17 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
       return;
     }
 
-    const colorArray = data.map(item => colorByValue(item.y));
-    
-    setOptions(prev => ({
-      ...prev,
-      colors: colorArray,
-    }));
+    // Мы можем просто использовать существующие options без изменений
+    // так как colorScale уже настроен правильно
   }, [data]);
-
-  const colorByValue = (value: number): string => {
-    if (value > 1500) return '#FF0000'; // Красный для высоких значений
-    if (value > 1000) return '#FFFF00'; // Желтый для средних значений
-    return '#00FF00'; // Зеленый для низких значений
-  };
 
   return (
     <div className='ReactApexChart'>
       <ReactApexChart 
-      options={options} 
-      series={[{ data }]} 
-      type="treemap" 
-      height={425}
+        options={options} 
+        series={[{ data }]} 
+        type="treemap" 
+        height={350}
       />
     </div>
   );
