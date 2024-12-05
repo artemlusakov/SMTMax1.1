@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useQuery } from 'react-query';
 
 interface DataItem {
   timestamp: string;
@@ -11,7 +12,6 @@ interface DataItem {
   part?: string;
 }
 
-
 const getErrorCodeFromMessage = (message: string): string | null => {
   const warningMatch = message.match(/<WARNING>/);
   const freezeMatch = message.match(/<FREEZE>/);
@@ -23,9 +23,8 @@ const getErrorCodeFromMessage = (message: string): string | null => {
   return null;
 };
 
-const TreemMapArr = () => {
+const Test = () => {
   const [data, setData] = React.useState<{ x: string; y: number }[]>([]);
-
 
   useEffect(() => {
     fetch('/Error.json')
@@ -52,4 +51,8 @@ const TreemMapArr = () => {
   return data;
 };
 
-export default TreemMapArr;
+function Data() {
+  const queryClient = useQuery('Data', getData)
+}
+
+export default Test;

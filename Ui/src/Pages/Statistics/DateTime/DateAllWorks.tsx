@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 
-export default function DateAllWorks() {
+interface Props {
+  url: string
+}
+
+export default function DateAllWorks( props : Props) {
 
   const [startTime, setStartTime] = useState<string>('');   
   const [endTime, setEndTime] = useState<string>('');
@@ -10,7 +14,7 @@ export default function DateAllWorks() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/Operate.json')
+    fetch(props.url)
       .then(response => response.json())
       .then((json: { datetime: string }[]) => {
         if (Array.isArray(json) && json.length > 0) {

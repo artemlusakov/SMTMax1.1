@@ -60,7 +60,6 @@ export const useAllError = create<AllErrorState>((set) => ({
       const formattedData = Object.entries(errorCounts).map(([x, y]) => ({ x, y }));
       set({ errorData: formattedData });
     } catch (error) {
-      console.error('Error fetching data:', error);
       set({ errorData: [] });
     }
   },

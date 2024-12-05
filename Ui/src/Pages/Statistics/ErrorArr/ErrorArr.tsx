@@ -13,6 +13,9 @@ interface DataItem {
     part?: string;
 }
 
+interface Props {
+    url: string
+}
 // Функция для извлечения кода ошибки из сообщения
 const getErrorCodeFromMessage = (message: string): string | null => {
     const match = message.match(/\[[a-zA-Z0-9]+\]/);
@@ -179,7 +182,7 @@ const getErrorDescription = (code: string): string => {
     }
 };
 
-const ErrorArr = () => {
+const ErrorArr = (props:Props) => {
     const [errorCodes, setErrorCodes] = useState<Record<string, { count: number; description: string }>>({});
     const [inputCode, setInputCode] = useState('');
 
@@ -197,7 +200,7 @@ const ErrorArr = () => {
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/Error.json')
+        fetch(props.url)
           .then(response => response.json())
           .then((data: DataItem[]) => {
             if (Array.isArray(data)) {
@@ -231,9 +234,7 @@ const ErrorArr = () => {
         return <div>Загрузка...</div>;
       }
     return (
-        <div className={"ErrorArr"}>
-            <h3>Количество ошибок по кодам</h3>
-            
+        <div className={"ErrorArr"}>        
             <div>
                 <input 
                     type="text" 

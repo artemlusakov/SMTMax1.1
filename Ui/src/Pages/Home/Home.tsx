@@ -20,7 +20,7 @@ export default function Home() {
 
     { 
       id: "e133415",
-      link: '/CM421', 
+      link: '/Test', 
       size: "Element100x50",
       name:"Test", 
       title: "Какоето оборудование", 

@@ -11,7 +11,11 @@ interface DataItemError {
     head: string;
 }
 
-export default function FiderChartDonats() {
+interface Props {
+    url: string
+}
+
+export default function FiderChartDonats(props : Props) {
     const { warningCount, fetchWarningCount } = useWarningCount();
 
     const [filteredCount, setFilteredCount] = useState<number>(0);
@@ -25,12 +29,12 @@ export default function FiderChartDonats() {
     }, []);
 
     useEffect(() => {
-        fetch('/Error.json')
+        fetch(props.url)
             .then(response => response.json())
             .then((data: DataItemError[]) => {
                 setData(data);
                 // Генерируем уникальные labels на основе данных
-                const uniqueLabels = Array.from(new Set(data.map(item => item.head)));
+                // const uniqueLabels = Array.from(new Set(data.map(item => item.head)));
 
             })
             .catch(error => console.error('Error fetching data:', error));

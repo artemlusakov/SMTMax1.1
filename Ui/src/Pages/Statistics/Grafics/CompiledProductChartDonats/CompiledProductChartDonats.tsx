@@ -11,7 +11,7 @@ interface ChartDonatsProps {
   totalItemsValue: number;
 }
 
-export default function ChartDonats({ seriesData, totalItemsValue }: ChartDonatsProps): JSX.Element {
+export default function CompiledProductChartDonats({ seriesData, totalItemsValue }: ChartDonatsProps): JSX.Element {
   // Определяем опции для графика
   const chartOptions = {
     labels: ['Сделано', 'Не сделано'],

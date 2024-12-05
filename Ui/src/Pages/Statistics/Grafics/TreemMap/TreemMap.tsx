@@ -25,17 +25,17 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
           ranges: [
             {
               from: 0,
-              to: 50,
+              to: 1000,
               color: '#00FF00'
             },
             {
-              from: 50,
-              to: 100,
+              from: 1000,
+              to: 1500,
               color: '#FFA500'
             },
             {
-              from: 100,
-              to: 300,
+              from: 1500,
+              to: Infinity,
               color: '#FF0000'
             }
           ]
