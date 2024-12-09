@@ -34,6 +34,18 @@ export default function CompiledProductChartDonats({ seriesData, totalItemsValue
         }
       }
     }],
+    noData: {
+      text: 'No data available',
+      align: 'center',
+      verticalAlign: 'middle',
+      offsetX: 0,
+      offsetY: 0,
+      style: {
+          color: undefined,
+          fontSize: '14px',
+          fontFamily: undefined
+      }
+    },
     chart: {
       events: {
         dataPointMouseEnter: function(event: any): void {

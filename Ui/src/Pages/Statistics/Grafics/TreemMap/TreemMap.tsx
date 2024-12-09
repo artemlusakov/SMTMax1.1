@@ -40,6 +40,18 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
             }
           ]
         }
+      },
+      noData: {
+        text: 'No data available',
+        align: 'center',
+        verticalAlign: 'middle',
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+            color: undefined,
+            fontSize: '14px',
+            fontFamily: undefined
+        }
       }
     },
     dataLabels: {
@@ -50,7 +62,7 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
       formatter: function(text, op) {
         return [text, op.value]
       },
-      offsetY: -4
+      offsetY: -1
     }
   });
 
@@ -74,7 +86,7 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
         options={options} 
         series={[{ data }]} 
         type="treemap" 
-        height={350}
+        height={420}
       />
     </div>
   );

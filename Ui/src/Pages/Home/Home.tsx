@@ -11,7 +11,7 @@ export default function Home() {
   const elements = [
     {
        id: "e133415",
-      link: '/CM421', 
+      link: '/Statistics', 
       size: "Element60x80",
       name:"CM 421", 
       title: "CM 421", 
@@ -20,7 +20,7 @@ export default function Home() {
 
     { 
       id: "e133415",
-      link: '/Test', 
+      link: '/Statistics', 
       size: "Element100x50",
       name:"Test", 
       title: "Какоето оборудование", 
@@ -28,7 +28,7 @@ export default function Home() {
     },
     {
       id: "e133415",
-      link: '/CM421',
+      link: '/Statistics',
       size: "Element60x80",
       name: "CM 421", 
       title: "CM 421", 
@@ -37,7 +37,7 @@ export default function Home() {
 
     { 
       id: "e133415",
-      link: '/CM421', 
+      link: '/Statistics', 
       size: "Element60x80",
       name:"CM 421", 
       title: "CM 421", 
@@ -46,7 +46,7 @@ export default function Home() {
 
     { 
       id: "e133415",
-      link: '/CM421', 
+      link: '/Statistics', 
       size: "Element100x50",
       name:"Test", 
       title: "Какоето оборудование", 

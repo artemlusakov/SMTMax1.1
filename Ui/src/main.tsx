@@ -20,7 +20,7 @@ const router = createBrowserRouter([
     element: <Test/>
   },
   {
-    path: '/CM421',
+    path: '/Statistics',
     element: <Statistics/>
   }
 ]);
