@@ -17,6 +17,7 @@ import FiderChartDonats from './Grafics/FiderChartDonats/FiderChartDonats';
 // Импорт данных
 import DateAllWorks from './DateTime/DateAllWorks';
 import TreemMapArr from '../../Store/TreemMap/useTreemMapArr';
+import ColumnErrorCodCharts from './Grafics/ColumnErrorCodCharts/ColumnErrorCodCharts';
 
 export default function Statistics() {
   // Получаем данные об ошибках
@@ -91,7 +92,8 @@ export default function Statistics() {
         <div className='Statistics_Col-2 Col_SB'>
           <div className='Row_Col-2'>
             <div className='Statistics_Box-max'>
-              <TreemMap  data={TreemMapArr()} />              
+              {/* <TreemMap  data={TreemMapArr()} />               */}
+              <ColumnErrorCodCharts/>
             </div>
           </div>
 
