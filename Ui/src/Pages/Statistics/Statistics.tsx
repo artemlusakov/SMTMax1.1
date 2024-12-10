@@ -42,6 +42,26 @@ export default function Statistics() {
    const OPERATE_JSON_URL : string = 'https://raw.githubusercontent.com/artemlusakov/SMTMax1.1/refs/heads/main/Ui/public/Operate.json'
 
 
+  //  const data = [
+  //   { x: 'af1a', y: 100},
+  //   { x: 'ff2q', y: 70},
+  //   { x: '2040', y: 30},
+  //   { x: '23da', y: 8},
+  //   { x: '0010', y: 20},
+  //   { x: '2021', y: 3},
+  //   { x: '2042', y: 30},
+  //   { x: '23d3', y: 8},
+  //   { x: '0014', y: 20},
+  //   { x: '2040', y: 30},
+  //   { x: '23da', y: 8},
+  //   { x: '0010', y: 20 },
+  //   { x: '2021', y: 3},
+  //   { x: '2042', y: 30},
+  //   { x: '23d3', y: 8},
+  //   { x: '0014', y: 20},
+  //   { x: '2025', y: 3}
+  // ]
+
   return (
     <div>
       <Navigate/>
@@ -93,7 +113,7 @@ export default function Statistics() {
           <div className='Row_Col-2'>
             <div className='Statistics_Box-max'>
               {/* <TreemMap  data={TreemMapArr()} />               */}
-              <ColumnErrorCodCharts/>
+              <ColumnErrorCodCharts url={ERROR_JSON_URL}/>
             </div>
           </div>
 

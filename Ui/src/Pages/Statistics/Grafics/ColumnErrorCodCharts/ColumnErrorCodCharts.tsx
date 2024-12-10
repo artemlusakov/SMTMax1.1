@@ -1,131 +1,158 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 
-export default function ColumnErrorCodCharts() {
-  const [state, setState] = useState({
-    series: [{
-      name: 'Количество',
-      data: [
-        { x: 'af1a', y: 10, name: 'Подъем крана' },
-        { x: 'ff2q', y: 7, name: 'Точка не найдена' },
-        { x: '2040', y: 30, name: 'Критическая ошибка' },
-        { x: '23da', y: 8, name: 'Нет смазки' },
-        { x: '0010', y: 20, name: 'Деталь ушла в стоп' },
-        { x: '2021', y: 3, name: 'Точка доступа не доступна' },
-        { x: '2042', y: 30, name: 'Критическая ошибка' },
-        { x: '23d3', y: 8, name: 'Нет смазки' },
-        { x: '0014', y: 20, name: 'Деталь ушла в стоп' },
-        { x: '2040', y: 30, name: 'Критическая ошибка' },
-        { x: '23da', y: 8, name: 'Нет смазки' },
-        { x: '0010', y: 20, name: 'Деталь ушла в стоп' },
-        { x: '2021', y: 3, name: 'Точка доступа не доступна' },
-        { x: '2042', y: 30, name: 'Критическая ошибка' },
-        { x: '23d3', y: 8, name: 'Нет смазки' },
-        { x: '0014', y: 20, name: 'Деталь ушла в стоп' },
-        { x: '2025', y: 3, name: 'Точка доступа не доступна' }
-      ].sort((a, b) => b.y - a.y)
-    }],
-    options: {
-      chart: {
-        height: 350,
-        type: 'bar',
-      },
-      plotOptions: {
-        bar: {
-          borderRadius: 8,
-          dataLabels: {
-            position: 'top', // top, center, bottom
-          },
-        }
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: function (val) {
-          return val;
+interface Props {
+  url: string;
+}
+
+interface DataItemError {
+  timestamp: string;
+  level: string;
+  message: string;
+  feeder: string;
+  head: string;
+}
+
+export default function ColumnErrorCodCharts(props: Props) {
+  const dataArr = [
+    { x: 'af1a', y: 100},
+    { x: 'ff2q', y: 70},
+    { x: '2040', y: 30},
+    { x: '23da', y: 8},
+    { x: '0010', y: 20},
+    { x: '2021', y: 3},
+    { x: '2042', y: 30},
+    { x: '23d3', y: 8},
+    { x: '0014', y: 20},
+    { x: '2040', y: 30},
+    { x: '23da', y: 8},
+    { x: '0010', y: 20 },
+    { x: '2021', y: 3},
+    { x: '2042', y: 30},
+    { x: '23d3', y: 8},
+    { x: '0014', y: 20},
+    { x: '2025', y: 3}
+  ];
+
+  const [selectedData, setSelectedData] = useState(dataArr);
+  const [limit, setLimit] = useState(10);
+
+  useEffect(() => {
+    updateSelectedData();
+  }, [limit]);
+
+  const updateSelectedData = () => {
+    let newData = [];
+    switch(limit) {
+      case 5:
+        newData = dataArr.slice(0, 5);
+        break;
+      case 10:
+        newData = dataArr.slice(0, 10);
+        break;
+      case 15:
+        newData = dataArr.slice(0, 15);
+        break;
+      case 20:
+        newData = dataArr.slice(0, 20);
+        break;
+      default:
+        newData = dataArr;
+    }
+    setSelectedData(newData);
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+  };
+
+  const options = {
+    chart: {
+      height: 350,
+      type: 'bar',
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 8,
+        dataLabels: {
+          position: 'top',
         },
-        offsetY: -20,
-        style: {
-          fontSize: '12px',
-          colors: ["#304758"]
-        }
-      },
-      
-      xaxis: {
-        position: 'top',
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
-        crosshairs: {
-          fill: {
-            type: 'gradient',
-            gradient: {
-              colorFrom: '#D8E3F0',
-              colorTo: '#BED1E6',
-              stops: [0, 100],
-              opacityFrom: 0.4,
-              opacityTo: 0.5,
-            }
-          }
-        },
-        tooltip: {
-          enabled: true,
-        },
-        onDatasetHover: {
-          highlightDataSeries: false,
       }
-        
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return val;
       },
-      yaxis: {
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false,
-        },
-        labels: {
-          show: false,
-          formatter: function (val:string) {
-            return val;
+      offsetY: -20,
+      style: {
+        fontSize: '12px',
+        colors: ["#304758"]
+      }
+    },
+    xaxis: {
+      position: 'top',
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      crosshairs: {
+        fill: {
+          type: 'gradient',
+          gradient: {
+            colorFrom: '#D8E3F0',
+            colorTo: '#BED1E6',
+            stops: [0, 100],
+            opacityFrom: 0.4,
+            opacityTo: 0.5,
           }
         }
-      
       },
-      title: {
-        text: 'Monthly Error Code Distribution',
-        floating: true,
-        offsetY: 330,
-        align: 'center',
-        style: {
-          color: '#444'
+      tooltip: {
+        enabled: true,
+      },
+      onDatasetHover: {
+        highlightDataSeries: false,
+      }
+    },
+    yaxis: {
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false,
+      },
+      labels: {
+        show: false,
+        formatter: function (val:string) {
+          return val;
         }
       }
     },
-  });
-
-
-  const [selectedCount, setSelectedCount] = useState(10);
-
-  const handleFilterClick = (count : number) => {
-    setSelectedCount(count);
+    title: {
+      text: 'Monthly Error Code Distribution',
+      floating: true,
+      offsetY: 330,
+      align: 'center',
+      style: {
+        color: '#444'
+      }
+    }
   };
-
-  const filteredData = state.series[0].data.slice(0, selectedCount);
-
 
   return (
     <div>
       <div className="filter-buttons">
-        <button onClick={() => handleFilterClick(5)}>Top 5</button>
-        <button onClick={() => handleFilterClick(10)}>Top 10</button>
-        <button onClick={() => handleFilterClick(15)}>Top 15</button>
-        <button onClick={() => handleFilterClick(20)}>Top 20</button>
+        <button onClick={() => handleLimitChange(5)}>Top 5</button>
+        <button onClick={() => handleLimitChange(10)}>Top 10</button>
+        <button onClick={() => handleLimitChange(15)}>Top 15</button>
+        <button onClick={() => handleLimitChange(20)}>Top 20</button>
       </div>
       <Chart 
-        options={state.options} 
-        series={[{ ...state.series[0], data: filteredData }]} 
+        options={options} 
+        series={[{ name: 'Количество', data: selectedData }]} 
         type="bar" 
         height={350} 
       />
