@@ -35,30 +35,33 @@ export default function ColumnErrorCodCharts(props: Props) {
   ];
 
   const [selectedData, setSelectedData] = useState(dataArr);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(5);
+  const [sortOrder, setSortOrder] = useState('asc');
 
   useEffect(() => {
     updateSelectedData();
-  }, [limit]);
+  }, [limit, sortOrder]);
 
   const updateSelectedData = () => {
-    let newData = [];
+    let newData = [...dataArr];
+    
     switch(limit) {
       case 5:
-        newData = dataArr.slice(0, 5);
+        newData = newData.sort((a, b) => sortOrder === 'asc' ? a.y - b.y : b.y - a.y).slice(0, 5);
         break;
       case 10:
-        newData = dataArr.slice(0, 10);
+        newData = newData.sort((a, b) => sortOrder === 'asc' ? a.y - b.y : b.y - a.y).slice(0, 10);
         break;
       case 15:
-        newData = dataArr.slice(0, 15);
+        newData = newData.sort((a, b) => sortOrder === 'asc' ? a.y - b.y : b.y - a.y).slice(0, 15);
         break;
       case 20:
-        newData = dataArr.slice(0, 20);
+        newData = newData.sort((a, b) => sortOrder === 'asc' ? a.y - b.y : b.y - a.y).slice(0, 20);
         break;
       default:
-        newData = dataArr;
+        newData = dataArr.sort((a, b) => sortOrder === 'asc' ? a.y - b.y : b.y - a.y);
     }
+
     setSelectedData(newData);
   };
 
@@ -66,80 +69,12 @@ export default function ColumnErrorCodCharts(props: Props) {
     setLimit(newLimit);
   };
 
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  };
+
   const options = {
-    chart: {
-      height: 350,
-      type: 'bar',
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 8,
-        dataLabels: {
-          position: 'top',
-        },
-      }
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: function (val) {
-        return val;
-      },
-      offsetY: -20,
-      style: {
-        fontSize: '12px',
-        colors: ["#304758"]
-      }
-    },
-    xaxis: {
-      position: 'top',
-      axisBorder: {
-        show: false
-      },
-      axisTicks: {
-        show: false
-      },
-      crosshairs: {
-        fill: {
-          type: 'gradient',
-          gradient: {
-            colorFrom: '#D8E3F0',
-            colorTo: '#BED1E6',
-            stops: [0, 100],
-            opacityFrom: 0.4,
-            opacityTo: 0.5,
-          }
-        }
-      },
-      tooltip: {
-        enabled: true,
-      },
-      onDatasetHover: {
-        highlightDataSeries: false,
-      }
-    },
-    yaxis: {
-      axisBorder: {
-        show: false
-      },
-      axisTicks: {
-        show: false,
-      },
-      labels: {
-        show: false,
-        formatter: function (val:string) {
-          return val;
-        }
-      }
-    },
-    title: {
-      text: 'Monthly Error Code Distribution',
-      floating: true,
-      offsetY: 330,
-      align: 'center',
-      style: {
-        color: '#444'
-      }
-    }
+    // ... (оставьте текущие опции без изменений)
   };
 
   return (
@@ -149,6 +84,9 @@ export default function ColumnErrorCodCharts(props: Props) {
         <button onClick={() => handleLimitChange(10)}>Top 10</button>
         <button onClick={() => handleLimitChange(15)}>Top 15</button>
         <button onClick={() => handleLimitChange(20)}>Top 20</button>
+      </div>
+      <div className="sort-buttons">
+        <button onClick={toggleSortOrder}>Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}</button>
       </div>
       <Chart 
         options={options} 
