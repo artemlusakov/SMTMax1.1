@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
+import './ColumnErrorCodCharts.css'
 
 interface Props {
   url: string;
@@ -35,7 +36,7 @@ export default function ColumnErrorCodCharts(props: Props) {
   ];
 
   const [selectedData, setSelectedData] = useState(dataArr);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(10);
   const [sortOrder, setSortOrder] = useState('asc');
 
   useEffect(() => {
@@ -74,16 +75,24 @@ export default function ColumnErrorCodCharts(props: Props) {
   };
 
   const options = {
-    // ... (оставьте текущие опции без изменений)
+
   };
 
   return (
     <div>
       <div className="filter-buttons">
-        <button onClick={() => handleLimitChange(5)}>Top 5</button>
-        <button onClick={() => handleLimitChange(10)}>Top 10</button>
-        <button onClick={() => handleLimitChange(15)}>Top 15</button>
-        <button onClick={() => handleLimitChange(20)}>Top 20</button>
+        <button onClick={() => handleLimitChange(5)} className={limit === 5 ? 'active-button' : ''}>
+            Top 5
+          </button>
+          <button onClick={() => handleLimitChange(10)} className={limit === 10 ? 'active-button' : ''}>
+            Top 10
+          </button>
+          <button onClick={() => handleLimitChange(15)} className={limit === 15 ? 'active-button' : ''}>
+            Top 15
+          </button>
+          <button onClick={() => handleLimitChange(20)} className={limit === 20 ? 'active-button' : ''}>
+            Top 20
+          </button>
       </div>
       <div className="sort-buttons">
         <button onClick={toggleSortOrder}>Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}</button>
