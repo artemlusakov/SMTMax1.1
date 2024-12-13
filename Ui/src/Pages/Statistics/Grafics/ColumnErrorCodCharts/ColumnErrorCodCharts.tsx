@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 import './ColumnErrorCodCharts.css'
+import { getErrorDescription } from '../../../../Store/Warning/WarningDescription';
 
 interface Props {
   url: string;
@@ -12,50 +13,66 @@ interface DataItem {
 }
 
 export default function ColumnErrorCodCharts(props: Props) {
-  const dataArr: DataItem[] = [
-    { x: 'af1a', y: 100},
-    { x: 'ff2q', y: 70},
-    { x: '2040', y: 30},
-    { x: '23da', y: 8},
-    { x: '0010', y: 20},
-    { x: '2021', y: 3},
-    { x: '2042', y: 30},
-    { x: '23d3', y: 8},
-    { x: '0014', y: 20},
-    { x: '2040', y: 30},
-    { x: '23da', y: 8},
-    { x: '0010', y: 20 },
-    { x: '2021', y: 3},
-    { x: '2042', y: 30},
-    { x: '23d3', y: 8},
-    { x: '0014', y: 20},
-    { x: '0011', y: 200},
-    { x: '2025', y: 3}
-  ];
-
-  const errorDescriptions: Record<string, string> = {
-    "af1a" : 'Ошибка сборки',
-    "ff2q" : 'Ошибка монтажа',
-    '2040' : 'Ошибка системы',
-    '23da' : 'Ошибка датчика',
-    '0010' : 'Ошибка связи',
-    '2021' : 'Ошибка программного обеспечения',
-    '2042' : 'Ошибка механизма',
-    '23d3' : 'Ошибка электроники',
-    '0014' : 'Ошибка управления',
-    '2025' : 'Ошибка системы безопасности'
-  };
-
-  const [selectedData, setSelectedData] = useState<DataItem[]>([]);
+  const [dataArr, setDataArr] = useState<DataItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [limit, setLimit] = useState<number>(10);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [allData, setAllData] = useState<DataItem[]>([]);
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = () => {
+    setIsLoading(true);
+    fetch('/Error.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data: any[]) => {
+        if (Array.isArray(data)) {
+          const filteredWarnings = data.filter(item => item.level === 'WARNING');
+          
+          const counts = filteredWarnings.reduce<{ [key: string]: number }>(
+            (acc, item) => {
+              const code = item.message.match(/\[[a-zA-Z0-9]+\]/)?.[0].slice(1, -1) || '';
+              acc[code] = (acc[code] || 0) + 1;
+              return acc;
+            },
+            {}
+          );
+
+          // Преобразуем объект counts в массив для графика
+          const chartData = Object.entries(counts).map(([code, count]) => ({
+            x: code,
+            y: count
+          }));
+
+          setAllData(chartData);
+          updateSelectedData();
+        } else {
+          console.error('Неверные данные: data не массив');
+        }
+      })
+      .catch(error => console.error('Fetch error:', error))
+      .finally(() => setIsLoading(false));
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
     updateSelectedData();
-  }, [limit, sortOrder]);
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    updateSelectedData();
+  };
 
   const updateSelectedData = () => {
-    let newData = [...dataArr];
+    let newData = [...allData];
     
     switch(limit) {
       case 5:
@@ -71,35 +88,42 @@ export default function ColumnErrorCodCharts(props: Props) {
         newData = newData.sort((a, b) => sortOrder === 'asc' ? a.y - b.y : b.y - a.y).slice(0, 20);
         break;
       default:
-        newData = dataArr.sort((a, b) => sortOrder === 'asc' ? a.y - b.y : b.y - a.y);
+        newData = allData.sort((a, b) => sortOrder === 'asc' ? a.y - b.y : b.y - a.y);
     }
 
-    setSelectedData(newData);
+    setDataArr(newData);
   };
 
-  const handleLimitChange = (newLimit: number) => {
-    setLimit(newLimit);
-  };
+  useEffect(() => {
+    updateSelectedData();
+  }, [limit, sortOrder]);
 
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-  };
-  
+  // Добавляем этот эффект для первого рендера
+  useEffect(() => {
+    if (!isLoading && allData.length > 0) {
+      updateSelectedData();
+    }
+  }, [isLoading, allData]);
+
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
+
   const options = {
     tooltip: {
-      custom: function({series, seriesIndex, dataPointIndex, w}) {
-        const errorCode = selectedData[dataPointIndex].x;
-        const count = selectedData[dataPointIndex].y;
-        const description = errorDescriptions[errorCode] || 'Неизвестная ошибка';
+      custom: function({ seriesIndex, dataPointIndex }) {
+        const errorCode = dataArr[dataPointIndex].x;
+        const count = dataArr[dataPointIndex].y;
+        const description = getErrorDescription(errorCode) || 'Неизвестная ошибка';
         
         return '<div class="arrow_box">' +
-          `<span>${errorCode} (${count}) ${description}</span>` +
+          `<span>[${errorCode}] - ${count} </span>` +
+          `<div>${description}</div>`+
           '</div>'
       }
     },
-
     xaxis: {
-      categories: selectedData.map(item => item.x), // Используем данные из dataArr для категорий оси X
+      categories: dataArr.map(item => item.x),
       labels: {
         formatter: function(val: string) {
           return val; // Возвращаем значение как есть
@@ -113,25 +137,26 @@ export default function ColumnErrorCodCharts(props: Props) {
       <div className="filter-buttons">
         <button onClick={() => handleLimitChange(5)} className={limit === 5 ? 'active-button' : ''}>
             Top 5
-          </button>
-          <button onClick={() => handleLimitChange(10)} className={limit === 10 ? 'active-button' : ''}>
+        </button>
+        <button onClick={() => handleLimitChange(10)} className={limit === 10 ? 'active-button' : ''}>
             Top 10
-          </button>
-          <button onClick={() => handleLimitChange(15)} className={limit === 15 ? 'active-button' : ''}>
+        </button>
+        <button onClick={() => handleLimitChange(15)} className={limit === 15 ? 'active-button' : ''}>
             Top 15
-          </button>
-          <button onClick={() => handleLimitChange(20)} className={limit === 20 ? 'active-button' : ''}>
+        </button>
+        <button onClick={() => handleLimitChange(20)} className={limit === 20 ? 'active-button' : ''}>
             Top 20
-          </button>
+        </button>
       </div>
       <div className="sort-buttons">
         <button onClick={toggleSortOrder}>Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}</button>
       </div>
       <Chart 
         options={options} 
-        series={[{ name: 'Количество', data: selectedData.map(item => item.y) }]} 
+        series={[{ name: 'Количество', data: dataArr.map(item => item.y) }]} 
         type="bar" 
-        height={350} 
+        height={300} 
+        width={"97%"}
       />
     </div>
   );
