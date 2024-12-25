@@ -15,6 +15,8 @@
     "@mui/material": "^6.1.7",
     "@mui/styled-engine-sc": "^6.1.8",
     "@mui/x-charts": "^7.22.3",
+    "@tanstack/react-query": "^5.62.10",
+    "@tanstack/react-query-devtools": "^5.62.10",
     "axios": "^1.7.8",
     "moment": "^2.30.1",
     "react": "^18.3.1",
