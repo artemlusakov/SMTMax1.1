@@ -1,0 +1,58 @@
+.WorkingLine__Element {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-decoration: none;
+
+    margin-left: 2px;
+
+    border: 2px solid #212121;
+}
+
+/* Размеры элементов */
+
+.Element60x80{
+    width: 60px;
+    height: 80%;
+  }
+.Element100x50{
+    width: 100px;
+    height: 50%;
+  }
+
+/*  */
+
+.WorkingLine__Element_good {
+    background-color: green;
+  }.WorkingLine__Element_good:hover{
+    border: green solid 2px;
+    background-color: rgb(5, 97, 5);
+    transition: all 0.7s ease-in-out;
+  }
+  
+  .WorkingLine__Element_normal {
+    background-color: orange;
+  } .WorkingLine__Element_normal:hover{
+    border: orange solid 2px;
+    background-color:rgb(255, 191, 0) ;
+    transition: all 0.7s ease-in-out;
+  }
+  
+  .WorkingLine__Element_bad {
+    background-color: red;
+  }.WorkingLine__Element_bad:hover{
+    border: red solid 2px;
+    background-color:rgb(206, 0, 0) ;
+    transition: all 0.7s ease-in-out;
+  }
+
+  /* стили для tooltip */
+.customTooltip {
+    background-color: blue !important;
+    color: white !important;
+    height: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }

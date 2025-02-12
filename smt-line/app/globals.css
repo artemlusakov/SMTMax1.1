@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  
+}
+
+/* Позиционирование */
+
+.Row_SB{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+}
+.Row_SA{
+
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.Col_SB{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+.Col_SA{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+/* Блоки с стандартными размерами */
+
+
+
+/* Inputs */
+
+.InputNum input[type=number]::-webkit-inner-spin-button {
+  height: 50px;
+  cursor: pointer;
+}

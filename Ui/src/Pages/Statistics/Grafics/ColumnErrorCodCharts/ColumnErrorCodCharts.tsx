@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useErrorCod } from './useErrorCod'; // Импортируем хук
 import Chart from 'react-apexcharts';
 import './ColumnErrorCodCharts.css';
 import { getErrorDescription } from '../../../../Store/Warning/WarningDescription';
@@ -7,57 +8,14 @@ interface Props {
   url: string;
 }
 
-interface DataItem {
-  x: string;
-  y: number;
-}
-
 export default function ColumnErrorCodCharts({ url }: Props) {
-  const [dataArr, setDataArr] = useState<DataItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: allData, isLoading, isError } = useErrorCod(url); // Используем хук для получения данных
   const [limit, setLimit] = useState(10);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [allData, setAllData] = useState<DataItem[]>([]);
-
-  // Функция для загрузки данных
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data: any[] = await response.json();
-
-      if (Array.isArray(data)) {
-        const filteredWarnings = data.filter(item => item.level === 'WARNING');
-        const counts = filteredWarnings.reduce<{ [key: string]: number }>((acc, item) => {
-          const code = item.message.match(/\[[a-zA-Z0-9]+\]/)?.[0].slice(1, -1) || '';
-          acc[code] = (acc[code] || 0) + 1;
-          return acc;
-        }, {});
-
-        const chartData = Object.entries(counts).map(([code, count]) => ({
-          x: code,
-          y: count,
-        }));
-
-        setAllData(chartData);
-      } else {
-        console.error('Неверные данные: data не массив');
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Запускаем загрузку данных
-  useEffect(() => {
-    fetchData();
-  }, [url]);
 
   // Мемоизируем данные с учетом сортировки и лимита
   const sortedData = useMemo(() => {
+    if (!allData) return [];
     const sorted = [...allData].sort((a, b) => (sortOrder === 'asc' ? a.y - b.y : b.y - a.y));
     return sorted.slice(0, limit);
   }, [allData, sortOrder, limit]);
@@ -74,6 +32,10 @@ export default function ColumnErrorCodCharts({ url }: Props) {
 
   if (isLoading) {
     return <div>Загрузка...</div>;
+  }
+
+  if (isError) {
+    return <div>Произошла ошибка при загрузке данных.</div>;
   }
 
   // Настройки для графика
@@ -120,7 +82,7 @@ export default function ColumnErrorCodCharts({ url }: Props) {
         options={options} 
         series={[{ name: 'Количество', data: sortedData.map(item => item.y) }]} 
         type="bar" 
-        height={300} 
+        height={330} 
         width={"97%"} 
       />
     </div>
