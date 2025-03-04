@@ -8,8 +8,11 @@ function normalizePath(p) {
 }
 
 // Получаем пути из переменных окружения или используем значения по умолчанию
-const LOG_DIR = normalizePath(process.env.LOG_DIR || 'C:\\Users\\z\\Desktop\\Log');
-const OUTPUT_DIR = normalizePath(process.env.OUTPUT_DIR || 'D:\\SMTMax1.1\\ScriptLog');
+// const LOG_DIR = normalizePath(process.env.LOG_DIR || 'C:\\Users\\z\\Desktop\\Log');
+// const OUTPUT_DIR = normalizePath(process.env.OUTPUT_DIR || 'D:\\SMTMax1.1\\ScriptLog');
+
+const LOG_DIR = normalizePath( 'E:\\SMTMax1.1\\ScriptLog');
+const OUTPUT_DIR = normalizePath( 'E:\\SMTMax1.1\\ScriptLog');
 
 console.log(`LOG_DIR: ${LOG_DIR}`);
 console.log(`OUTPUT_DIR: ${OUTPUT_DIR}`);

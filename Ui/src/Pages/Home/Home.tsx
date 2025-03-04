@@ -4,6 +4,7 @@ import './Home.css'
 
 import Navigate from '../../Components/Navigate/Navigate';
 import WorkingLineElement from '../Home/LineElement/WorkingLineElement'
+import ItemList from '../../Components/Test/ItemList.jsx'
 
 import { useState } from 'react';
 
@@ -78,6 +79,8 @@ export default function Home() {
             <div>
               <h3>Не эфективное</h3>
             </div>
+
+            <ItemList/>
       </div>
     </div>
   )
