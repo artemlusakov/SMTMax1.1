@@ -20,7 +20,7 @@ import DateAllWorks from './DateTime/DateAllWorks';
 import ColumnErrorCodCharts from './Grafics/ColumnErrorCodCharts/ColumnErrorCodCharts';
 
 import DataTest from '../Statistics/Grafics/ColumnErrorCodCharts/testArr';
-import FeederPartList from '../Test/Test';
+import FeederPartList from '../Statistics/FeederPartList/FeederPartList';
 
 
 export default function Statistics() {
