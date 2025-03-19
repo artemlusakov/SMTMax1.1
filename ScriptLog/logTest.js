@@ -8,8 +8,8 @@ function normalizePath(p) {
 }
 
 // Получаем пути из переменных окружения или используем значения по умолчанию
-const LOG_DIR = normalizePath( 'E:\\SMTMax1.1\\ScriptLog');
-const OUTPUT_DIR = normalizePath( 'E:\\SMTMax1.1\\ScriptLog');
+const LOG_DIR = normalizePath('E:\\SMTMax1.1\\ScriptLog');
+const OUTPUT_DIR = normalizePath('E:\\SMTMax1.1\\ScriptLog');
 
 console.log(`LOG_DIR: ${LOG_DIR}`);
 console.log(`OUTPUT_DIR: ${OUTPUT_DIR}`);
@@ -34,20 +34,29 @@ function parseLogLine(line) {
     const datetime = `${date}T${time}`;
 
     // Извлекаем Feeder из сообщения
-    const feederMatch = message.match(/(?:^|\s)(F\d{1,3}|R\d{1,3})(?:\s|$)/);
-    const feeder = feederMatch ? feederMatch[1].trim() : 'none';
+    let feeder = 'none';
+    const feederMatch = message.match(/Feeder\s+([A-Z]\d{1,3}|R\d{1,3})\b/);
+    if (feederMatch) {
+        feeder = feederMatch[1].trim();
+    }
 
     // Извлекаем Head из сообщения
     const headMatch = message.match(/(?:^|\s)(Head\d+)/);
     const head = headMatch ? headMatch[1].trim() : 'none';
 
     // Извлекаем FeederID из сообщения
+    let feederID = 'none';
     const feederIDMatch = message.match(/FeederID\((\d+)\)/);
-    const feederID = feederIDMatch ? feederIDMatch[1].trim() : 'none';
+    if (feederIDMatch) {
+        feederID = feederIDMatch[1].trim();
+    }
 
     // Извлекаем Part из сообщения
-    const partMatch = message.match(/Part\((.*?)\)/);
-    const part = partMatch ? partMatch[1].trim() : 'none';
+    let part = 'none';
+    const partMatch = message.match(/Part\s+([\w\._]+)/) || message.match(/Part\((.*?)\)/);
+    if (partMatch) {
+        part = partMatch[1].trim();
+    }
 
     // Определяем тип сообщения
     const type = determineLogLevel(message);

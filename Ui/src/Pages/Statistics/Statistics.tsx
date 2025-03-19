@@ -10,16 +10,17 @@ import { useAllError } from './AllError';
 
 // Импорт компонентов графиков
 import CompiledProductChartDonats from './Grafics/CompiledProductChartDonats/CompiledProductChartDonats';
-import TreemMap from './Grafics/TreemMap/TreemMap';
+// import TreemMap from './Grafics/TreemMap/TreemMap';
 import ErrorArr from './ErrorArr/ErrorArr';
 import FiderChartDonats from './Grafics/FiderChartDonats/FiderChartDonats';
 
 // Импорт данных
 import DateAllWorks from './DateTime/DateAllWorks';
-import TreemMapArr from '../../Store/TreemMap/useTreemMapArr';
+// import TreemMapArr from '../../Store/TreemMap/useTreemMapArr';
 import ColumnErrorCodCharts from './Grafics/ColumnErrorCodCharts/ColumnErrorCodCharts';
 
 import DataTest from '../Statistics/Grafics/ColumnErrorCodCharts/testArr';
+import FeederPartList from '../Test/Test';
 
 
 export default function Statistics() {
@@ -41,8 +42,8 @@ export default function Statistics() {
   const [TotalItemsValue, setTotalItemsValue] = useState(0);
 
 
-   const ERROR_JSON_URL : string = 'https://raw.githubusercontent.com/artemlusakov/SMTMax1.1/refs/heads/main/Ui/public/Error.json';
-   const OPERATE_JSON_URL : string = 'https://raw.githubusercontent.com/artemlusakov/SMTMax1.1/refs/heads/main/Ui/public/Operate.json'
+   const ERROR_JSON_URL : string = '../../../public/Error.json';
+   const OPERATE_JSON_URL : string = '../../../public/Operate.json'
 
 
   return (
@@ -107,7 +108,9 @@ export default function Statistics() {
             </div>
 
             <div className='Statistics_Box-min'>
-              <DateAllWorks url={OPERATE_JSON_URL}/>
+              {/* <DateAllWorks url={OPERATE_JSON_URL}/> */}
+
+              <FeederPartList url={OPERATE_JSON_URL}/>
             </div>
           </div>
         </div>

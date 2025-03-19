@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getErrorDescription } from '../../../Store/Warning/WarningDescription';
-import './ErrorArr.css'
+import './ErrorArr.css';
 
 interface DataItem {
     timestamp: string;
@@ -45,18 +45,6 @@ const ErrorArr = ({ url }: Props) => {
         setSortOrder(prevOrder => (prevOrder === 'asc' ? 'desc' : 'asc'));
     };
 
-    // Получаем отсортированные данные при изменении сортировки
-    useEffect(() => {
-        const newSortedErrorCodes = Object.fromEntries(
-            Object.entries(errorCodes).sort((a, b) => {
-                const countA = a[1].count;
-                const countB = b[1].count;
-                return sortOrder === 'asc' ? countA - countB : countB - countA;
-            })
-        );
-        setErrorCodes(newSortedErrorCodes);
-    }, [sortOrder, errorCodes]);
-
     // Загружаем данные из API
     useEffect(() => {
         fetch(url)
@@ -89,8 +77,14 @@ const ErrorArr = ({ url }: Props) => {
         return <div>Загрузка...</div>;
     }
 
-    // Фильтруем данные по введенному коду ошибки
-    const filteredErrorCodes = Object.entries(errorCodes).filter(([code]) =>
+    // Сортируем и фильтруем данные
+    const sortedErrorCodes = Object.entries(errorCodes).sort((a, b) => {
+        const countA = a[1].count;
+        const countB = b[1].count;
+        return sortOrder === 'asc' ? countA - countB : countB - countA;
+    });
+
+    const filteredErrorCodes = sortedErrorCodes.filter(([code]) =>
         code.toLowerCase().includes(inputCode)
     );
 
