@@ -4,7 +4,7 @@ import './ErrorArr.css';
 
 interface DataItem {
     timestamp: string;
-    level: string;
+    type: string;
     message: string;
     feeder?: string;
     head?: string;
@@ -51,7 +51,7 @@ const ErrorArr = ({ url }: Props) => {
             .then(response => response.json())
             .then((data: DataItem[]) => {
                 if (Array.isArray(data)) {
-                    const filteredErrors = data.filter(item => item.level === 'WARNING');
+                    const filteredErrors = data.filter(item => item.type === 'WARNING');
                     
                     const codes = filteredErrors.reduce((acc: Record<string, { count: number; description: string }>, item) => {
                         const errorCode = getErrorCodeFromMessage(item.message);
@@ -90,28 +90,41 @@ const ErrorArr = ({ url }: Props) => {
 
     return (
         <div className="ErrorArr">
-            <div>
-                <input
-                    type="text"
-                    placeholder="Введите код ошибки"
-                    value={inputCode}
-                    onChange={handleInputChange}
-                />
+        <div className="search-container">
+            <input
+                type="text"
+                placeholder="Введите код ошибки"
+                value={inputCode}
+                onChange={handleInputChange}
+            />
+            {/* <div className="description-container">
                 <p>Описание: {getErrorDescription(inputCode)}</p>
-            </div>
+            </div> */}
+        </div>
 
+        <div className="sort-buttons">
             <button onClick={toggleSortOrder}>
                 Сортировка {sortOrder === 'asc' ? 'по убыванию' : 'по возрастанию'}
             </button>
-
-            <ul>
-                {filteredErrorCodes.map(([code, { count, description }]) => (
-                    <li key={code}>
-                        [{code}] - {description} <div className='Color_red'>Количество: ({count})</div>
-                    </li>
-                ))}
-            </ul>
         </div>
+
+        <div className="data-container">
+            <div className="data-header">
+                <div>Код ошибки</div>
+                <div>Описание</div>
+                <div>Количество</div>
+            </div>
+            <div className="data-body">
+                {filteredErrorCodes.map(([code, { count, description }]) => (
+                    <div className="data-row" key={code}>
+                        <div>[{code}]</div>
+                        <div>{description}</div>
+                        <div className='Color_red'>{count}</div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
     );
 };
 

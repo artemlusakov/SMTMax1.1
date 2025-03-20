@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWarningCount } from '../../../../Store/Warning/useWarningCount';
 import Chart from 'react-apexcharts';
 import "./FiderChartDonats.css";
 
 interface DataItemError {
-    datetime: string; // Изменили с timestamp на datetime
-    type: string;     // Изменили с level на type
+    datetime: string;
+    type: string;
     message: string;
     feeder: string;
     head: string;
-    feederID: string; // Добавили feederID
-    part: string;     // Добавили part
+    feederID: string;
+    part: string;
 }
 
 interface Props {
@@ -19,16 +19,21 @@ interface Props {
 
 export default function FiderChartDonats(props: Props) {
     const { warningCount, fetchWarningCount } = useWarningCount();
-
     const [filteredCount, setFilteredCount] = useState<number>(0);
     const [selectedHead, setSelectedHead] = useState<string>('Head1');
     const [selectFider, setSelectFider] = useState<string>('');
     const [data, setData] = useState<DataItemError[]>([]);
     const [labels, setLabels] = useState<string[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
     // Загрузка общего количества WARNING
     useEffect(() => {
-        fetchWarningCount();
+        const fetchData = async () => {
+            setLoading(true);
+            await fetchWarningCount();
+            setLoading(false);
+        };
+        fetchData();
     }, [fetchWarningCount]);
 
     // Загрузка данных из API
@@ -37,7 +42,7 @@ export default function FiderChartDonats(props: Props) {
             .then(response => response.json())
             .then((data: DataItemError[]) => {
                 setData(data);
-                console.log('Data loaded:', data); // Логируем данные для отладки
+                console.log('Data loaded:', data);
             })
             .catch(error => console.error('Error fetching data:', error));
     }, [props.url]);
@@ -48,10 +53,10 @@ export default function FiderChartDonats(props: Props) {
             const filteredEntries = data.filter(item =>
                 item.head.includes(selectedHead) &&
                 (item.feeder === selectFider || !selectFider) &&
-                item.type === 'WARNING' // Используем type вместо level
+                item.type === 'WARNING'
             );
             setFilteredCount(filteredEntries.length);
-            console.log('Filtered entries:', filteredEntries); // Логируем отфильтрованные данные
+            console.log('Filtered entries:', filteredEntries);
         }
     }, [selectedHead, selectFider, data]);
 
@@ -75,22 +80,19 @@ export default function FiderChartDonats(props: Props) {
 
     // Обновление labels для графика
     useEffect(() => {
-        console.log('Warning count or Filtered count changed');
-
         const labelsAllWarning: string = 'Количество ошибок со всеми Warning';
         const labelsWarningHead: string = `Количество WARNING с ${`${selectedHead} и ${selectFider ? `Fider ${selectFider}` : "Без Fider"}`}`;
-
         setLabels([labelsAllWarning, labelsWarningHead]);
     }, [warningCount, filteredCount, selectedHead, selectFider]);
 
     // Настройки для графика
-    const chartOptions: any = useMemo(() => ({
+    const chartOptions: any = {
         chart: {
             type: 'donut',
-            width: 250,
-            height: 200,
+            width: 100,
+            // height: 200,
         },
-        labels: labels, // Используем labels из состояния компонента
+        labels: labels,
         colors: ['#34C759', '#FF0000'],
         plotOptions: {
             pie: {
@@ -99,9 +101,6 @@ export default function FiderChartDonats(props: Props) {
                 }
             }
         },
-        pieChart: {
-            customScale: 1.1
-        },
         legend: {
             show: false
         },
@@ -109,7 +108,7 @@ export default function FiderChartDonats(props: Props) {
             breakpoint: 480,
             options: {
                 chart: {
-                    width: 200
+                    width: 100
                 },
                 legend: {
                     position: 'bottom'
@@ -128,26 +127,19 @@ export default function FiderChartDonats(props: Props) {
                 fontFamily: undefined
             }
         }
-    }), [labels]); // Добавляем labels в зависимость useMemo
+    };
 
     // Данные для графика
-    const chartSeries = useMemo(() => [
-        warningCount,
-        Math.max(0, filteredCount)
-    ], [warningCount, filteredCount]);
+    const chartSeries = [warningCount, Math.max(0, filteredCount)];
+
+    if (loading) {
+        return <p>Загрузка данных...</p>;
+    }
 
     return (
         <div className='FiderChartDonats'>
-            {/* График */}
-            <Chart
-                options={chartOptions}
-                series={chartSeries}
-                type="donut"
-                height={180}
-            />
-
-            {/* Управление выбором Head и Feeder */}
-            <div>
+            <h2>Анализ WARNING</h2>
+            <div className="controls">
                 <select value={selectedHead} onChange={handleSelectChange}>
                     <option value="Head1">Head1</option>
                     <option value="Head2">Head2</option>
@@ -156,7 +148,6 @@ export default function FiderChartDonats(props: Props) {
                     <option value="Head5">Head5</option>
                     <option value="Head6">Head6</option>
                 </select>
-
                 <input
                     type="text"
                     placeholder='Введите Fider'
@@ -165,13 +156,21 @@ export default function FiderChartDonats(props: Props) {
                     pattern="^[A-Z0-9\s]+$"
                 />
             </div>
-
-            {/* Информация о WARNING */}
-            <p>Общее количество WARNING: {warningCount}</p>
-            <p>
-                Количество WARNING с {selectedHead} и {selectFider ? `Fider ${selectFider}` : "Без Fider"} :
-                {filteredCount} ({calculatePercentage()})
-            </p>
+            <div className="chart-container">
+                <Chart
+                    options={chartOptions}
+                    series={chartSeries}
+                    type="donut"
+                    height={180}
+                />
+            </div>
+            <div className="info">
+                <p>Общее количество WARNING: <span>{warningCount}</span></p>
+                <p>
+                    Количество WARNING с {selectedHead} и {selectFider ? `Fider ${selectFider}` : "Без Fider"}:
+                    <span> {filteredCount} ({calculatePercentage()})</span>
+                </p>
+            </div>
         </div>
     );
 }

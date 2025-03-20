@@ -16,7 +16,7 @@ export const useCompletedTasks = create<CompletedTasksState>((set) => ({
   setCompletedTasks: (value: number) => set({ completedTasks: value }),
   fetchCompletedTasks: async () => {
     try {
-      const response = await fetch('./Operate.json', { cache: 'no-store' });
+      const response = await fetch('../../../public/Operate.json', { cache: 'no-store' });
 
       const data: DataItemOperate[] = await response.json();
       if (Array.isArray(data)) {

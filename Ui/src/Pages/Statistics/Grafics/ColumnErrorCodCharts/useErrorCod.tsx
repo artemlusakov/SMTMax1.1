@@ -11,7 +11,7 @@ const fetchChartData = async (url: string): Promise<DataItem[]> => {
   const data: any[] = await response.json();
 
   if (Array.isArray(data)) {
-    const filteredWarnings = data.filter(item => item.level === 'WARNING');
+    const filteredWarnings = data.filter(item => item.type === 'WARNING');
     const counts = filteredWarnings.reduce<{ [key: string]: number }>((acc, item) => {
       const code = item.message.match(/\[[a-zA-Z0-9]+\]/)?.[0].slice(1, -1) || '';
       acc[code] = (acc[code] || 0) + 1;

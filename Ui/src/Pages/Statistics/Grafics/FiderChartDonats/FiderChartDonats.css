@@ -1,3 +1,74 @@
-.FiderChartDonats{
-    height: 300px;
+.FiderChartDonats {
+    height: 100%; /* Высота блока */
+    width: 100%; /* Ширина блока */
+    padding: 10px; /* Уменьшаем отступы */
+    background: #ffffff; /* Белый фон */
+    border-radius: 10px; /* Скругленные углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Равномерное распределение пространства */
+    overflow: hidden; /* Скрываем всё, что выходит за пределы */
+}
+
+.FiderChartDonats h2 {
+    font-size: 16px; /* Уменьшаем размер заголовка */
+    font-weight: bold;
+    margin-bottom: 10px; /* Уменьшаем отступ */
+    color: #2c3e50;
+    text-align: center;
+}
+
+.FiderChartDonats .controls {
+    display: flex;
+    gap: 8px; /* Уменьшаем расстояние между элементами */
+    margin-bottom: 10px; /* Уменьшаем отступ */
+}
+
+.FiderChartDonats select,
+.FiderChartDonats input {
+    padding: 6px; /* Уменьшаем отступы внутри полей */
+    border: 1px solid #ccc;
+    border-radius: 6px; /* Скругленные углы */
+    font-size: 12px; /* Уменьшаем размер текста */
+    outline: none;
+    transition: border-color 0.3s ease;
+    width: 100%; /* Растягиваем на всю ширину */
+}
+
+.FiderChartDonats select:focus,
+.FiderChartDonats input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+.FiderChartDonats .info {
+    text-align: center;
+    margin-top: 10px; /* Уменьшаем отступ */
+}
+
+.FiderChartDonats .info p {
+    font-size: 12px; /* Уменьшаем размер текста */
+    margin: 5px 0; /* Уменьшаем отступы */
+    color: #34495e;
+}
+
+.FiderChartDonats .info p span {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.FiderChartDonats .chart-container {
+    background: white;
+    margin: 10px; /* Уменьшаем отступы */
+    border-radius: 100%; /* Скругленные углы */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    width: 45%;
+    height: 50%; /* Фиксируем высоту графика */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

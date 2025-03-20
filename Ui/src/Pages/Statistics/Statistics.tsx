@@ -54,12 +54,11 @@ export default function Statistics() {
         <div className='Statistics_Col-1 Col_SB'>
           <div className='Row_SB Row_Col-1'>
             <div className='Statistics_Box-min'>
-              <h4>Ошибки по фидеру</h4>
+              {/* <h4>Ошибки по фидеру</h4> */}
               <FiderChartDonats url={ERROR_JSON_URL}/>
             </div>
 
             <div className='Statistics_Box-min Col_SA InputNum'>
-              <h4>Сделано деталей {completedTasks}</h4>
               <CompiledProductChartDonats 
                 seriesData={{ done: completedTasks, totalItems: TotalItemsValue || 0 }} 
                 totalItemsValue={TotalItemsValue}

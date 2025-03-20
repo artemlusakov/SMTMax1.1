@@ -1,6 +1,6 @@
 import React from 'react';
 import Chart from 'react-apexcharts';
-import './CompiledProductChartDonats.css'
+import './CompiledProductChartDonats.css';
 
 // Определение интерфейса пропсов компонента
 interface ChartDonatsProps {
@@ -19,31 +19,28 @@ export default function CompiledProductChartDonats({ seriesData, totalItemsValue
     plotOptions: {
       pie: {
         donut: {
-          size: '30%'
+          size: '30%' // Размер доната оставляем таким же
         }
-      },
-      pieChart: {
-        customScale: 1.1
       }
     },
     responsive: [{
       breakpoint: 500,
       options: {
         chart: {
-          width: 100 
+          width: 50 // Уменьшили в 2 раза (было 100)
         }
       }
     }],
     noData: {
-      text: 'No data available',
+      text: 'No data',
       align: 'center',
       verticalAlign: 'middle',
       offsetX: 0,
       offsetY: 0,
       style: {
-          color: undefined,
-          fontSize: '14px',
-          fontFamily: undefined
+        color: undefined,
+        fontSize: '12px', // Уменьшили шрифт (было 14px)
+        fontFamily: undefined
       }
     },
     chart: {
@@ -64,19 +61,18 @@ export default function CompiledProductChartDonats({ seriesData, totalItemsValue
   // Рассчитываем общее количество деталей и завершенных деталей
   const completedItems = seriesData.done;
 
-
   return (
-    <div>
+    <div className="compiled-product-chart">
+      <h2>Сделано деталей</h2>
       <Chart
-        options={chartOptions} 
+        options={chartOptions}
         series={[seriesData.done, Math.max(0, seriesData.totalItems - seriesData.done)]}
         type="donut"
-        height={350}
+        height={175} // Уменьшили в 2 раза (было 350)
       />
       
       <p>Сделано: {completedItems}</p>
       <p>Не сделано: {Math.max(0, seriesData.totalItems - seriesData.done)}</p>
-
     </div>
   );
 }

@@ -1,16 +1,110 @@
-.ErrorArr ul{
+.ErrorArr {
+    font-family: Arial, sans-serif;
     width: 100%;
-    height: 300px;
-    overflow: auto;
-    overscroll-behavior: none;
-}
-
-.ErrorArr p{
-    border: 1px solid #212121;
-    height: 50px;
-    overflow: auto;
-}
-
-.Color_red{
+    height: 100%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .search-container input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* .description-container {
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    padding: 8px; 
+    margin-bottom: 10px; 
+    height: 30px; 
+    overflow-y: auto; 
+    background-color: #f8f9fa; 
+    font-size: 14px; 
+  } */
+  
+  .sort-buttons {
+    margin-bottom: 10px;
+  }
+  
+  .sort-buttons button {
+    margin-right: 1px;
+    margin-top: 1px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .sort-buttons button:hover {
+    background-color: #0056b3;
+  }
+  
+  .data-container {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 70%; /* Фиксированная высота */
+    width: 100%; /* Фиксированная ширина */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .data-header {
+    display: flex;
+    background-color: #f8f9fa;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .data-header div {
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .data-body {
+    flex: 1;
+    overflow-y: auto; /* Вертикальный скролл */
+    font-size: 12px; /* Уменьшаем размер шрифта */
+  }
+  
+  .data-row {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    padding: 4px 0; /* Уменьшаем отступы внутри строк */
+    height: 40px; /* Фиксированная высота строки */
+    align-items: center; /* Выравниваем содержимое по центру */
+  }
+  
+  .data-row div {
+    padding: 0 8px; /* Уменьшаем отступы внутри ячеек */
+    text-align: center;
+  }
+  
+  .data-row:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .Color_red {
     color: red;
-}
+  }
+  
+  /* Распределение ширины колонок */
+  .data-header div:nth-child(1),
+  .data-row div:nth-child(1) {
+    flex: 1; /* Ширина для колонки "Код ошибки" */
+  }
+  
+  .data-header div:nth-child(2),
+  .data-row div:nth-child(2) {
+    flex: 3; /* Ширина для колонки "Описание" (в 3 раза больше, чем у других) */
+  }
+  
+  .data-header div:nth-child(3),
+  .data-row div:nth-child(3) {
+    flex: 1; /* Ширина для колонки "Количество" */
+  }

@@ -1,0 +1,30 @@
+.compiled-product-chart {
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  text-align: center;
+}
+
+.compiled-product-chart p {
+  font-size: 14px;
+  margin: 8px 0;
+  color: #34495e;
+}
+
+.compiled-product-chart p span {
+  font-weight: bold;
+  color: #e74c3c;
+}
+
+.compiled-product-chart h2{
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #2c3e50;
+  text-align: center;
+}
