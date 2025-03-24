@@ -1,4 +1,3 @@
-import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import Home from './Pages/Home/Home';
 import Statistics from './Pages/Statistics/Statistics';

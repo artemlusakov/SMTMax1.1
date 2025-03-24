@@ -1,10 +1,8 @@
-import React from 'react'
-
 import './Home.css'
 
 import Navigate from '../../Components/Navigate/Navigate';
 import WorkingLineElement from '../Home/LineElement/WorkingLineElement'
-import ItemList from '../../Components/Test/ItemList.jsx'
+
 
 import { useState } from 'react';
 
@@ -55,7 +53,7 @@ export default function Home() {
     },
   ];
 
-  const [workingLineElements, setWorkingLineElements] = useState(elements);
+  const [workingLineElements] = useState(elements);
   
   return (
     <div className='Home'>
@@ -80,7 +78,6 @@ export default function Home() {
               <h3>Не эфективное</h3>
             </div>
 
-            <ItemList/>
       </div>
     </div>
   )

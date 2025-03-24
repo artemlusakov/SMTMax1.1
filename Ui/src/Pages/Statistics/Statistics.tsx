@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
 import Navigate from '../../Components/Navigate/Navigate'
 import './Statistics.css'
-
+import { useEffect, useState } from 'react'; // Добавьте этот импорт
 
 // Импорт хуков
 import { useCompletedTasks } from '../../Store/CompletedTasks/useCompletedTasks';
@@ -10,6 +9,7 @@ import { useAllError } from './AllError';
 
 // Импорт компонентов графиков
 import CompiledProductChartDonats from './Grafics/CompiledProductChartDonats/CompiledProductChartDonats';
+
 // import TreemMap from './Grafics/TreemMap/TreemMap';
 import ErrorArr from './ErrorArr/ErrorArr';
 import FiderChartDonats from './Grafics/FiderChartDonats/FiderChartDonats';
@@ -25,7 +25,7 @@ import FeederPartList from '../Statistics/FeederPartList/FeederPartList';
 
 export default function Statistics() {
   // Получаем данные об ошибках
-  const { errorData, fetchErrorData } = useAllError();
+  const { fetchErrorData } = useAllError();
 
   useEffect(() => {
     fetchErrorData();
@@ -74,11 +74,11 @@ export default function Statistics() {
 
           <div className='Row_SB Row_Col-1'>
             <div className='Statistics_Box-min'>
-              <h4>Деталей в минуту</h4>
+              <DateAllWorks url={OPERATE_JSON_URL}/>
             </div>
 
             <div className='Statistics_Box-min'>
-              <h4>Статистика за прошлую смену</h4>
+
             </div>
           </div>
 
@@ -87,6 +87,7 @@ export default function Statistics() {
 
             </div>
             <div className='Statistics_Box-min'>
+              <h3>Статистика по раболте станка</h3>
               <DataTest />
             </div>
           </div>
@@ -108,7 +109,7 @@ export default function Statistics() {
 
             <div className='Statistics_Box-min'>
               {/* <DateAllWorks url={OPERATE_JSON_URL}/> */}
-
+              <h3>Таблица: Feeder, FeederID и Part</h3>
               <FeederPartList url={OPERATE_JSON_URL}/>
             </div>
           </div>

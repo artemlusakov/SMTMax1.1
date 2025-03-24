@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './FeederPartList.css'; // Импортируем CSS
 
 interface DataItem {
@@ -130,8 +130,6 @@ export default function FeederPartList(props: Props) {
 
     return (
         <div className="feeder-part-list">
-            <h2>Таблица: Feeder, FeederID и Part</h2>
-
             {/* Поле поиска */}
             <div className="search-container">
                 <input

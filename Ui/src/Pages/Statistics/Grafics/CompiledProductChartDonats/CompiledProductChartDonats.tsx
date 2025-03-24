@@ -1,4 +1,3 @@
-import React from 'react';
 import Chart from 'react-apexcharts';
 import './CompiledProductChartDonats.css';
 
@@ -11,7 +10,7 @@ interface ChartDonatsProps {
   totalItemsValue: number;
 }
 
-export default function CompiledProductChartDonats({ seriesData, totalItemsValue }: ChartDonatsProps): JSX.Element {
+export default function CompiledProductChartDonats({ seriesData }: ChartDonatsProps): JSX.Element {
   // Определяем опции для графика
   const chartOptions = {
     labels: ['Сделано', 'Не сделано'],
@@ -19,43 +18,45 @@ export default function CompiledProductChartDonats({ seriesData, totalItemsValue
     plotOptions: {
       pie: {
         donut: {
-          size: '30%' // Размер доната оставляем таким же
-        }
-      }
+          size: '30%', // Размер доната
+        },
+      },
     },
-    responsive: [{
-      breakpoint: 500,
-      options: {
-        chart: {
-          width: 50 // Уменьшили в 2 раза (было 100)
-        }
-      }
-    }],
+    responsive: [
+      {
+        breakpoint: 500,
+        options: {
+          chart: {
+            width: 50, // Уменьшили в 2 раза (было 100)
+          },
+        },
+      },
+    ],
     noData: {
       text: 'No data',
-      align: 'center',
-      verticalAlign: 'middle',
+      align: 'center' as const, // Убедитесь, что align имеет тип "center" | "left" | "right"
+      verticalAlign: 'middle' as const, // Убедитесь, что verticalAlign имеет тип "middle" | "top" | "bottom"
       offsetX: 0,
       offsetY: 0,
       style: {
         color: undefined,
         fontSize: '12px', // Уменьшили шрифт (было 14px)
-        fontFamily: undefined
-      }
+        fontFamily: undefined,
+      },
     },
     chart: {
       events: {
-        dataPointMouseEnter: function(event: any): void {
-          event.target.style.cursor = "pointer";
+        dataPointMouseEnter: function (event: any): void {
+          event.target.style.cursor = 'pointer';
         },
-        dataPointMouseLeave: function(event: any): void {
-          event.target.style.cursor = "default";
-        }
+        dataPointMouseLeave: function (event: any): void {
+          event.target.style.cursor = 'default';
+        },
       },
       toolbar: {
-        show: false
-      }
-    }
+        show: false,
+      },
+    },
   };
 
   // Рассчитываем общее количество деталей и завершенных деталей
@@ -68,9 +69,9 @@ export default function CompiledProductChartDonats({ seriesData, totalItemsValue
         options={chartOptions}
         series={[seriesData.done, Math.max(0, seriesData.totalItems - seriesData.done)]}
         type="donut"
-        height={175} // Уменьшили в 2 раза (было 350)
+        height={175} 
       />
-      
+
       <p>Сделано: {completedItems}</p>
       <p>Не сделано: {Math.max(0, seriesData.totalItems - seriesData.done)}</p>
     </div>

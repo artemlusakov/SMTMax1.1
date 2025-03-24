@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getErrorDescription } from '../../../Store/Warning/WarningDescription';
 import './ErrorArr.css';
 
 interface DataItem {
     timestamp: string;
-    type: string;
     message: string;
     feeder?: string;
     head?: string;

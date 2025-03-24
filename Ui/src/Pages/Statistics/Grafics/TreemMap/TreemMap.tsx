@@ -9,7 +9,7 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
   const [options, setOptions] = React.useState({
     chart: {
       height: 350,
-      type: 'treemap',
+      type: 'treemap' as const, // Явно указываем тип "treemap"
     },
     title: {
       text: 'Статистика ошибок'
@@ -43,8 +43,8 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
       },
       noData: {
         text: 'No data available',
-        align: 'center',
-        verticalAlign: 'middle',
+        align: 'center' as const, // Указываем тип для align
+        verticalAlign: 'middle' as const, // Указываем тип для verticalAlign
         offsetX: 0,
         offsetY: 0,
         style: {
@@ -59,8 +59,8 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
       style: {
         fontSize: '12px',
       },
-      formatter: function(text, op) {
-        return [text, op.value]
+      formatter: function(text: string, op: { value: number }) {
+        return `${text}: ${op.value}`; // Возвращаем строку вместо массива
       },
       offsetY: -1
     }
@@ -68,7 +68,7 @@ const TreemMap: React.FC<TreemapProps> = ({ data }) => {
 
   useEffect(() => {
     if (!data || data.length === 0) {
-      console.warn('Данные отсутствуют или пусты не могу отрисовать график');
+      console.warn('Данные отсутствуют или пусты, не могу отрисовать график');
       setOptions(prev => ({
         ...prev,
         title: { text: 'Статистика ошибок' },

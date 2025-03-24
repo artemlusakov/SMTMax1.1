@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useErrorCod } from './useErrorCod'; // Импортируем хук
 import Chart from 'react-apexcharts';
 import './ColumnErrorCodCharts.css';
@@ -41,7 +41,7 @@ export default function ColumnErrorCodCharts({ url }: Props) {
   // Настройки для графика
   const options = {
     tooltip: {
-      custom: ({ seriesIndex, dataPointIndex }: any) => {
+      custom: ({ dataPointIndex }: any) => {
         const errorCode = sortedData[dataPointIndex].x;
         const count = sortedData[dataPointIndex].y;
         const description = getErrorDescription(errorCode) || 'Неизвестная ошибка';

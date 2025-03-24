@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface OperatePathErrorPath {
   OperatePath: string;
   ErrorPath: string;
