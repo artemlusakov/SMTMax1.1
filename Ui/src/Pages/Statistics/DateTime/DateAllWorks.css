@@ -1,0 +1,70 @@
+.date-all-works {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.time-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+
+.time-card.highlight {
+  background: #f0f7ff;
+  border-left: 4px solid #4a90e2;
+}
+
+.time-icon {
+  font-size: 24px;
+  margin-right: 15px;
+  width: 40px;
+  text-align: center;
+}
+
+.time-info h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.time-info p {
+  margin: 0;
+  color: #555;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #4a90e2;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+.error {
+  color: #d32f2f;
+  text-align: center;
+  padding: 20px;
+  background: #ffebee;
+  border-radius: 8px;
+}
+
+.error-message {
+  margin: 0;
+}

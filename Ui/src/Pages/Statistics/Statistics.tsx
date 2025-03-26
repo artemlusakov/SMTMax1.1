@@ -87,7 +87,7 @@ export default function Statistics() {
 
             </div>
             <div className='Statistics_Box-min'>
-              <h3>Статистика по раболте станка</h3>
+            
               <DataTest />
             </div>
           </div>
