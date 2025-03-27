@@ -1,18 +1,19 @@
 import './Home.css';
 import Navigate from '../../Components/Navigate/Navigate';
 import WorkingLineElement from '../Home/LineElement/WorkingLineElement';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
-export default function Home() {
-  const elements = [
+// Функция для имитации получения новых данных с сервера
+const fetchEquipmentData = async () => {
+  // В реальном приложении здесь был бы fetch запрос
+  return [
     {
       id: "e133415",
       link: '/Statistics', 
       size: "element-card",
       name: "CM 421", 
       title: "CM 421", 
-      value: 100,
-      status: "operational" // добавлено новое поле для статуса
+      value: Math.floor(Math.random() * 2000) + 100, // Случайное value от 100 до 2100
     },
     { 
       id: "e133416",
@@ -20,8 +21,7 @@ export default function Home() {
       size: "element-card-wide",
       name: "Test", 
       title: "Другое оборудование", 
-      value: 1100,
-      status: "warning"
+      value: Math.floor(Math.random() * 2000) + 100,
     },
     {
       id: "e133417",
@@ -29,8 +29,7 @@ export default function Home() {
       size: "element-card",
       name: "CM 421", 
       title: "CM 421", 
-      value: 200,
-      status: "operational"
+      value: Math.floor(Math.random() * 2000) + 100,
     },
     { 
       id: "e133418",
@@ -38,8 +37,7 @@ export default function Home() {
       size: "element-card",
       name: "CM 421", 
       title: "CM 421", 
-      value: 2000,
-      status: "error"
+      value: Math.floor(Math.random() * 2000) + 100,
     },
     { 
       id: "e133419",
@@ -47,50 +45,140 @@ export default function Home() {
       size: "element-card-wide",
       name: "Test", 
       title: "Другое оборудование", 
-      value: 100,
-      status: "maintenance"
+      value: Math.floor(Math.random() * 2000) + 100,
     },
   ];
+};
 
-  const [workingLineElements] = useState(elements);
-  
+export default function Home() {
+  const [workingLineElements, setWorkingLineElements] = useState([]);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // Загружаем данные и обновляем каждые 5 секунд
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchEquipmentData();
+      setWorkingLineElements(data);
+      setLastUpdated(new Date());
+    };
+
+    loadData(); // Первоначальная загрузка
+    const interval = setInterval(loadData, 5000); // Обновление каждые 5 сек
+
+    return () => clearInterval(interval); // Очистка при размонтировании
+  }, []);
+
+  const metrics = useMemo(() => {
+    if (workingLineElements.length === 0) return {
+      efficiencyPercentage: 0,
+      attentionNeeded: 0,
+      errorMachineIds: [],
+      hasCriticalErrors: false
+    };
+
+    const elementsWithStatus = workingLineElements.map(item => ({
+      ...item,
+      status: item.value > 1500 ? 'error' : 
+              item.value >= 1000 ? 'warning' : 'operational'
+    }));
+
+    const hasCriticalErrors = elementsWithStatus.some(item => item.status === 'error');
+    const errorMachines = elementsWithStatus.filter(item => item.status === 'error');
+    
+    if (hasCriticalErrors) {
+      return {
+        efficiencyPercentage: 0,
+        attentionNeeded: errorMachines.length + 
+                        elementsWithStatus.filter(item => item.status === 'warning').length,
+        errorMachineIds: errorMachines.map(m => m.id),
+        hasCriticalErrors: true
+      };
+    }
+
+    const totalValue = elementsWithStatus.reduce((sum, item) => sum + item.value, 0);
+    const goodValue = elementsWithStatus
+      .filter(item => item.status === 'operational')
+      .reduce((sum, item) => sum + item.value, 0);
+    
+    const warningValue = elementsWithStatus
+      .filter(item => item.status === 'warning')
+      .reduce((sum, item) => sum + item.value * 0.5, 0);
+
+    const efficiencyPercentage = totalValue > 0
+      ? Math.round(((goodValue + warningValue) / totalValue) * 100)
+      : 0;
+
+    return {
+      efficiencyPercentage,
+      attentionNeeded: elementsWithStatus.filter(item => item.status !== 'operational').length,
+      errorMachineIds: [],
+      hasCriticalErrors: false,
+      lastUpdated
+    };
+  }, [workingLineElements, lastUpdated]);
+
   return (
     <div className='home-container'>
       <Navigate/>
 
       <div className='dashboard'>
+        <div className='last-updated'>
+          Последнее обновление: {lastUpdated.toLocaleTimeString()}
+        </div>
+
         <div className='equipment-section'>
           <h2 className='section-title'>Мониторинг оборудования</h2>
           <div className='equipment-grid'>
-            {workingLineElements.map((item, index) => (
-              <WorkingLineElement
-                key={index}
-                titleNameElemet={item.title}
-                idElement={item.id}
-                linkElement={item.link}
-                nameElement={item.name}
-                valueElement={item.value}
-                size={item.size}
-                status={item.status}
-              />
-            ))}
+            {workingLineElements.map((item) => {
+              const status = item.value > 1500 ? 'error' : 
+                           item.value >= 1000 ? 'warning' : 'operational';
+              return (
+                <WorkingLineElement
+                  key={item.id}
+                  titleNameElemet={item.title}
+                  idElement={item.id}
+                  linkElement={item.link}
+                  nameElement={item.name}
+                  valueElement={item.value}
+                  size={item.size}
+                  status={status}
+                />
+              );
+            })}
           </div>
         </div>
 
         <div className='performance-section'>
           <h3 className='section-title'>Эффективность работы</h3>
           <div className='performance-metrics'>
-            <div className='metric-card'>
+            <div className={`metric-card ${metrics.hasCriticalErrors ? 'critical-error' : ''}`}>
               <span className='metric-label'>Общая эффективность</span>
-              <span className='metric-value'>87%</span>
+              <span className='metric-value'>
+                {metrics.efficiencyPercentage}%
+                {metrics.hasCriticalErrors && (
+                  <div className='error-alert blinking-text'>
+                    СРОЧНО ИСПРАВЬТЕ: {metrics.errorMachineIds.join(', ')}
+                  </div>
+                )}
+              </span>
             </div>
-            <div className='metric-card warning'>
+            <div className={`metric-card ${metrics.attentionNeeded > 0 ? 'warning' : ''}`}>
               <span className='metric-label'>Требует внимания</span>
-              <span className='metric-value'>2 машины</span>
+              <span className='metric-value'>
+                {metrics.attentionNeeded} {getMachineWord(metrics.attentionNeeded)}
+              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
+}
+
+function getMachineWord(count: number): string {
+  const cases = [2, 0, 1, 1, 1, 2];
+  const words = ['машина', 'машины', 'машин'];
+  return words[
+    count % 100 > 4 && count % 100 < 20 ? 2 : cases[Math.min(count % 10, 5)]
+  ];
 }
