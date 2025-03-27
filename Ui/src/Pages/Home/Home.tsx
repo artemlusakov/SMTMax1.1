@@ -3,8 +3,26 @@ import Navigate from '../../Components/Navigate/Navigate';
 import WorkingLineElement from '../Home/LineElement/WorkingLineElement';
 import { useState, useEffect, useMemo } from 'react';
 
+// Определяем интерфейс на уровне модуля
+interface DataObject {
+  id: string;
+  link: string; 
+  size: string;
+  name: string; 
+  title: string; 
+  value: number;
+}
+
+interface Metrics {
+  efficiencyPercentage: number;
+  attentionNeeded: number;
+  errorMachineIds: string[];
+  hasCriticalErrors: boolean;
+  lastUpdated?: Date;
+}
+
 // Функция для имитации получения новых данных с сервера
-const fetchEquipmentData = async () => {
+const fetchEquipmentData = async (): Promise<DataObject[]> => {
   // В реальном приложении здесь был бы fetch запрос
   return [
     {
@@ -13,7 +31,7 @@ const fetchEquipmentData = async () => {
       size: "element-card",
       name: "CM 421", 
       title: "CM 421", 
-      value: Math.floor(Math.random() * 2000) + 100, // Случайное value от 100 до 2100
+      value: Math.floor(Math.random() * 2000) + 100,
     },
     { 
       id: "e133416",
@@ -51,8 +69,8 @@ const fetchEquipmentData = async () => {
 };
 
 export default function Home() {
-  const [workingLineElements, setWorkingLineElements] = useState([]);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [workingLineElements, setWorkingLineElements] = useState<DataObject[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Загружаем данные и обновляем каждые 5 секунд
   useEffect(() => {
@@ -68,7 +86,7 @@ export default function Home() {
     return () => clearInterval(interval); // Очистка при размонтировании
   }, []);
 
-  const metrics = useMemo(() => {
+  const metrics: Metrics = useMemo(() => {
     if (workingLineElements.length === 0) return {
       efficiencyPercentage: 0,
       attentionNeeded: 0,
@@ -141,7 +159,6 @@ export default function Home() {
                   nameElement={item.name}
                   valueElement={item.value}
                   size={item.size}
-                  status={status}
                 />
               );
             })}
