@@ -21,6 +21,7 @@ import ColumnErrorCodCharts from './Grafics/ColumnErrorCodCharts/ColumnErrorCodC
 
 import DataTest from '../Statistics/Grafics/ColumnErrorCodCharts/testArr';
 import FeederPartList from '../Statistics/FeederPartList/FeederPartList';
+import NoData from '../../Components/NoData/NoData';
 
 
 export default function Statistics() {
@@ -78,18 +79,27 @@ export default function Statistics() {
             </div>
 
             <div className='Statistics_Box-min'>
-
+            <NoData/>
             </div>
           </div>
 
           <div className='Row_SB Row_Col-1'>
-            <div className='Statistics_Box-min'>
 
+            <div className='Statistics_Box-min'>
+                <NoData 
+                  message="Data loading failed"
+                  icon="warning"
+                  variant="warning"
+                />
             </div>
+
             <div className='Statistics_Box-min'>
             
-              <DataTest />
+              <NoData
+                  icon="info"
+              />
             </div>
+
           </div>
         </div>
 

@@ -60,7 +60,7 @@ const fetchEquipmentData = async (): Promise<DataObject[]> => {
     { 
       id: "e133419",
       link: '/Statistics', 
-      size: "element-card-wide",
+      size: "element-card",
       name: "Test", 
       title: "Другое оборудование", 
       value: Math.floor(Math.random() * 2000) + 100,
