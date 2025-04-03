@@ -3,7 +3,7 @@ import { create } from "zustand";
 interface WarningCount {
     warningCount: number;
     setWarningCount: (value: number) => void;
-    fetchWarningCount: () => void;
+    fetchWarningCount: (machineId: string) => void; // Добавляем параметр machineId
 }
 
 interface DataItemError {
@@ -19,13 +19,13 @@ interface DataItemError {
 export const useWarningCount = create<WarningCount>((set) => ({
     warningCount: 0,
     setWarningCount: (value: number) => set({ warningCount: value }),
-    fetchWarningCount: async () => {
+    fetchWarningCount: async (machineId: string) => { // Принимаем machineId как параметр
         try {
-            const response = await fetch('../../../public/Error.json');
+            const ERROR_JSON_URL = `../../${machineId}/Error.json`;
+            const response = await fetch(ERROR_JSON_URL);
             const data: DataItemError[] = await response.json();
 
             if (Array.isArray(data)) {
-                // Фильтруем данные по типу "WARNING"
                 const warnings = data.filter(item => item.type === 'WARNING');
                 set({ warningCount: warnings.length });
             } else {

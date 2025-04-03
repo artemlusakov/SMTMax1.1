@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
     element: <Test />,
   },
   {
-    path: '/Statistics',
+    path: "/Statistics/:machineId",
     element: <Statistics />,
   },
 ]);

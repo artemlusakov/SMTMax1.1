@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWarningCount } from '../../../../Store/Warning/useWarningCount';
 import Chart from 'react-apexcharts';
 import "./FiderChartDonats.css";
@@ -25,26 +25,57 @@ export default function FiderChartDonats(props: Props) {
     const [data, setData] = useState<DataItemError[]>([]);
     const [labels, setLabels] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Извлекаем machineId из URL
+    const extractMachineId = useCallback(() => {
+        const matches = props.url.match(/\/([^\/]+)\/Error\.json$/);
+        return matches ? matches[1] : null;
+    }, [props.url]);
 
     // Загрузка общего количества WARNING
     useEffect(() => {
+        const machineId = extractMachineId();
+        if (!machineId) {
+            setError('Не удалось определить machineId из URL');
+            return;
+        }
+
         const fetchData = async () => {
-            setLoading(true);
-            await fetchWarningCount();
-            setLoading(false);
+            try {
+                setLoading(true);
+                await fetchWarningCount(machineId);
+                setError(null);
+            } catch (err) {
+                setError('Ошибка при загрузке количества предупреждений');
+                console.error('Error fetching warning count:', err);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchData();
-    }, [fetchWarningCount]);
+    }, [fetchWarningCount, extractMachineId]);
 
     // Загрузка данных из API
     useEffect(() => {
-        fetch(props.url)
-            .then(response => response.json())
-            .then((data: DataItemError[]) => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(props.url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data: DataItemError[] = await response.json();
                 setData(data);
-                console.log('Data loaded:', data);
-            })
-            .catch(error => console.error('Error fetching data:', error));
+                setError(null);
+            } catch (err) {
+                setError('Ошибка при загрузке данных');
+                console.error('Error fetching data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, [props.url]);
 
     // Фильтрация данных по выбранным Head и Feeder
@@ -52,45 +83,42 @@ export default function FiderChartDonats(props: Props) {
         if (data.length > 0) {
             const filteredEntries = data.filter(item =>
                 item.head.includes(selectedHead) &&
-                (item.feeder === selectFider || !selectFider) &&
+                (selectFider ? item.feeder === selectFider : true) &&
                 item.type === 'WARNING'
             );
             setFilteredCount(filteredEntries.length);
-            console.log('Filtered entries:', filteredEntries);
         }
     }, [selectedHead, selectFider, data]);
 
-    // Обработчик изменения выбранного Head
+    // Обработчики событий
     const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedHead(event.target.value);
     };
 
-    // Обработчик изменения ввода Feeder
     const fiderInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = event.target.value.toUpperCase();
         setSelectFider(inputValue.replace(/[^A-Z0-9\s]/g, ''));
     };
 
     // Расчет процента WARNING
-    const calculatePercentage = (): string => {
+    const calculatePercentage = useCallback((): string => {
         if (warningCount === 0) return '0%';
         const percentage = ((filteredCount / warningCount) * 100).toFixed(2);
         return `${percentage}%`;
-    };
+    }, [warningCount, filteredCount]);
 
     // Обновление labels для графика
     useEffect(() => {
-        const labelsAllWarning: string = 'Количество ошибок со всеми Warning';
-        const labelsWarningHead: string = `Количество WARNING с ${`${selectedHead} и ${selectFider ? `Fider ${selectFider}` : "Без Fider"}`}`;
+        const labelsAllWarning = 'Количество ошибок со всеми Warning';
+        const labelsWarningHead = `Количество WARNING с ${selectedHead}${selectFider ? ` и Fider ${selectFider}` : ''}`;
         setLabels([labelsAllWarning, labelsWarningHead]);
-    }, [warningCount, filteredCount, selectedHead, selectFider]);
+    }, [selectedHead, selectFider]);
 
     // Настройки для графика
-    const chartOptions: any = {
+    const chartOptions = {
         chart: {
             type: 'donut',
             width: 100,
-            // height: 200,
         },
         labels: labels,
         colors: ['#34C759', '#FF0000'],
@@ -116,11 +144,9 @@ export default function FiderChartDonats(props: Props) {
             }
         }],
         noData: {
-            text: 'No data available',
+            text: 'Нет данных',
             align: 'center',
             verticalAlign: 'middle',
-            offsetX: 0,
-            offsetY: 0,
             style: {
                 color: undefined,
                 fontSize: '14px',
@@ -129,11 +155,14 @@ export default function FiderChartDonats(props: Props) {
         }
     };
 
-    // Данные для графика
     const chartSeries = [warningCount, Math.max(0, filteredCount)];
 
     if (loading) {
-        return <p>Загрузка данных...</p>;
+        return <div className="loading">Загрузка данных...</div>;
+    }
+
+    if (error) {
+        return <div className="error">{error}</div>;
     }
 
     return (
@@ -141,12 +170,9 @@ export default function FiderChartDonats(props: Props) {
             <h2>Анализ WARNING</h2>
             <div className="controls">
                 <select value={selectedHead} onChange={handleSelectChange}>
-                    <option value="Head1">Head1</option>
-                    <option value="Head2">Head2</option>
-                    <option value="Head3">Head3</option>
-                    <option value="Head4">Head4</option>
-                    <option value="Head5">Head5</option>
-                    <option value="Head6">Head6</option>
+                    {[1, 2, 3, 4, 5, 6].map(num => (
+                        <option key={`Head${num}`} value={`Head${num}`}>Head{num}</option>
+                    ))}
                 </select>
                 <input
                     type="text"
@@ -167,7 +193,7 @@ export default function FiderChartDonats(props: Props) {
             <div className="info">
                 <p>Общее количество WARNING: <span>{warningCount}</span></p>
                 <p>
-                    Количество WARNING с {selectedHead} и {selectFider ? `Fider ${selectFider}` : "Без Fider"}:
+                    Количество WARNING с {selectedHead}{selectFider && ` и Fider ${selectFider}`}:
                     <span> {filteredCount} ({calculatePercentage()})</span>
                 </p>
             </div>
