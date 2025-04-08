@@ -2,6 +2,14 @@ import './Home.css';
 import Navigate from '../../Components/Navigate/Navigate';
 import WorkingLineElement from '../Home/LineElement/WorkingLineElement';
 import { useState, useEffect, useMemo } from 'react';
+import { Box } from '@mui/material'
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import Tooltip from '@mui/material/Tooltip';
 
 // Определяем интерфейс на уровне модуля
 interface DataObject {
@@ -22,50 +30,64 @@ interface Metrics {
 }
 
 // Функция для имитации получения новых данных с сервера
+// const fetchEquipmentData = async (): Promise<DataObject[]> => {
+//   // В реальном приложении здесь был бы fetch запрос
+//   return [
+//     {
+//       id: "e133415",
+//       link: '/Statistics', 
+//       size: "element-card",
+//       name: "CM 421", 
+//       title: "CM 421", 
+//       value: Math.floor(Math.random() * 2000) + 100,
+//     },
+//     { 
+//       id: "e133416",
+//       link: '/Statistics', 
+//       size: "element-card-wide",
+//       name: "Test", 
+//       title: "Другое оборудование", 
+//       value: Math.floor(Math.random() * 2000) + 100,
+//     },
+//     {
+//       id: "e133417",
+//       link: '/Statistics',
+//       size: "element-card",
+//       name: "CM 421", 
+//       title: "CM 421", 
+//       value: Math.floor(Math.random() * 2000) + 100,
+//     },
+//     { 
+//       id: "e133418",
+//       link: '/Statistics', 
+//       size: "element-card",
+//       name: "CM 421", 
+//       title: "CM 421", 
+//       value: Math.floor(Math.random() * 2000) + 100,
+//     },
+//     { 
+//       id: "e133419",
+//       link: '/Statistics', 
+//       size: "element-card",
+//       name: "Test", 
+//       title: "Другое оборудование", 
+//       value: Math.floor(Math.random() * 2000) + 100,
+//     },
+//   ];
+// };
+
+// Функция для получения данных с сервера
 const fetchEquipmentData = async (): Promise<DataObject[]> => {
-  // В реальном приложении здесь был бы fetch запрос
-  return [
-    {
-      id: "e133415",
-      link: '/Statistics', 
-      size: "element-card",
-      name: "CM 421", 
-      title: "CM 421", 
-      value: Math.floor(Math.random() * 2000) + 100,
-    },
-    { 
-      id: "e133416",
-      link: '/Statistics', 
-      size: "element-card-wide",
-      name: "Test", 
-      title: "Другое оборудование", 
-      value: Math.floor(Math.random() * 2000) + 100,
-    },
-    {
-      id: "e133417",
-      link: '/Statistics',
-      size: "element-card",
-      name: "CM 421", 
-      title: "CM 421", 
-      value: Math.floor(Math.random() * 2000) + 100,
-    },
-    { 
-      id: "e133418",
-      link: '/Statistics', 
-      size: "element-card",
-      name: "CM 421", 
-      title: "CM 421", 
-      value: Math.floor(Math.random() * 2000) + 100,
-    },
-    { 
-      id: "e133419",
-      link: '/Statistics', 
-      size: "element-card",
-      name: "Test", 
-      title: "Другое оборудование", 
-      value: Math.floor(Math.random() * 2000) + 100,
-    },
-  ];
+  try {
+    const response = await fetch('http://localhost:8080/api/equipment');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching equipment data:', error);
+    return []; // Возвращаем пустой массив в случае ошибки
+  }
 };
 
 export default function Home() {
@@ -145,7 +167,70 @@ export default function Home() {
         </div>
 
         <div className='equipment-section'>
-          <h2 className='section-title'>Мониторинг оборудования</h2>
+        <Box sx={{ 
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center', 
+      width: '100%',
+      p: 2, // добавим отступы
+      bgcolor: 'background.paper', // цвет фона
+      borderRadius: 1, // скругление углов
+      boxShadow: 1, // легкая тень
+      mb: 3 // отступ снизу
+    }}>
+      <h2 className='section-title' style={{ margin: 0 }}>Мониторинг оборудования</h2>
+
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        {/* Кнопка обновления */}
+        <Tooltip title="Обновить данные">
+          <IconButton color="primary" aria-label="refresh">
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
+
+        {/* Кнопка добавления */}
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />}
+          color="success"
+          sx={{
+            textTransform: 'none', // убираем uppercase
+            borderRadius: 2, // скругление
+            px: 3 // горизонтальные отступы
+          }}
+        >
+          Добавить
+        </Button>
+
+        {/* Кнопка редактирования */}
+        <Button 
+          variant="outlined" 
+          startIcon={<EditIcon />}
+          color="info"
+          sx={{
+            textTransform: 'none',
+            borderRadius: 2,
+            px: 3
+          }}
+        >
+          Редактировать
+        </Button>
+
+        {/* Кнопка удаления */}
+        <Button 
+          variant="outlined" 
+          startIcon={<DeleteIcon />}
+          color="error"
+          sx={{
+            textTransform: 'none',
+            borderRadius: 2,
+            px: 3
+          }}
+        >
+          Удалить
+        </Button>
+      </Box>
+    </Box>
           <div className='equipment-grid'>
             {workingLineElements.map((item) => {
               const status = item.value > 1500 ? 'error' : 
