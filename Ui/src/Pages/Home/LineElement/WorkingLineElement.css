@@ -4,7 +4,7 @@
     justify-content: center;
     color: #fff;
     text-decoration: none;
-
+    border-radius: 10px;
     margin-left: 2px;
 
     border: 2px solid #212121;
@@ -55,4 +55,24 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+  }
+
+  .WorkingLine__Element.selected {
+    border: 2px solid #2196f3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+  }
+  
+  .selection-marker {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #2196f3;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
   }

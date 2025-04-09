@@ -2,22 +2,30 @@ import './Home.css';
 import Navigate from '../../Components/Navigate/Navigate';
 import WorkingLineElement from '../Home/LineElement/WorkingLineElement';
 import { useState, useEffect, useMemo } from 'react';
-import { Box } from '@mui/material'
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import Tooltip from '@mui/material/Tooltip';
+import { 
+  Box, 
+  Button, 
+  IconButton, 
+  Tooltip, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  TextField 
+} from '@mui/material';
+import { 
+  Add as AddIcon, 
+  Edit as EditIcon, 
+  Delete as DeleteIcon, 
+  Refresh as RefreshIcon 
+} from '@mui/icons-material';
 
-// Определяем интерфейс на уровне модуля
 interface DataObject {
   id: string;
-  link: string; 
+  link: string;
   size: string;
-  name: string; 
-  title: string; 
+  name: string;
+  title: string;
   value: number;
 }
 
@@ -29,72 +37,33 @@ interface Metrics {
   lastUpdated?: Date;
 }
 
-// Функция для имитации получения новых данных с сервера
-// const fetchEquipmentData = async (): Promise<DataObject[]> => {
-//   // В реальном приложении здесь был бы fetch запрос
-//   return [
-//     {
-//       id: "e133415",
-//       link: '/Statistics', 
-//       size: "element-card",
-//       name: "CM 421", 
-//       title: "CM 421", 
-//       value: Math.floor(Math.random() * 2000) + 100,
-//     },
-//     { 
-//       id: "e133416",
-//       link: '/Statistics', 
-//       size: "element-card-wide",
-//       name: "Test", 
-//       title: "Другое оборудование", 
-//       value: Math.floor(Math.random() * 2000) + 100,
-//     },
-//     {
-//       id: "e133417",
-//       link: '/Statistics',
-//       size: "element-card",
-//       name: "CM 421", 
-//       title: "CM 421", 
-//       value: Math.floor(Math.random() * 2000) + 100,
-//     },
-//     { 
-//       id: "e133418",
-//       link: '/Statistics', 
-//       size: "element-card",
-//       name: "CM 421", 
-//       title: "CM 421", 
-//       value: Math.floor(Math.random() * 2000) + 100,
-//     },
-//     { 
-//       id: "e133419",
-//       link: '/Statistics', 
-//       size: "element-card",
-//       name: "Test", 
-//       title: "Другое оборудование", 
-//       value: Math.floor(Math.random() * 2000) + 100,
-//     },
-//   ];
-// };
-
-// Функция для получения данных с сервера
 const fetchEquipmentData = async (): Promise<DataObject[]> => {
   try {
     const response = await fetch('http://localhost:8080/api/equipment');
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
+    if (!response.ok) throw new Error('Network response was not ok');
     return await response.json();
   } catch (error) {
     console.error('Error fetching equipment data:', error);
-    return []; // Возвращаем пустой массив в случае ошибки
+    return [];
   }
 };
 
 export default function Home() {
   const [workingLineElements, setWorkingLineElements] = useState<DataObject[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<DataObject | null>(null);
+  const [formData, setFormData] = useState<Omit<DataObject, 'id'>>({
+    link: '/Statistics',
+    size: 'element-card',
+    name: '',
+    title: '',
+    value: 0
+  });
 
-  // Загружаем данные и обновляем каждые 5 секунд
+  // Загрузка данных
   useEffect(() => {
     const loadData = async () => {
       const data = await fetchEquipmentData();
@@ -102,12 +71,93 @@ export default function Home() {
       setLastUpdated(new Date());
     };
 
-    loadData(); // Первоначальная загрузка
-    const interval = setInterval(loadData, 5000); // Обновление каждые 5 сек
-
-    return () => clearInterval(interval); // Очистка при размонтировании
+    loadData();
+    const interval = setInterval(loadData, 5000);
+    return () => clearInterval(interval);
   }, []);
 
+  // Выбор элементов
+  const handleSelectItem = (id: string) => {
+    setSelectedItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(itemId => itemId !== id) 
+        : [...prev, id]
+    );
+  };
+
+  // Обновление данных
+  const refreshData = async () => {
+    const data = await fetchEquipmentData();
+    setWorkingLineElements(data);
+    setLastUpdated(new Date());
+    setSelectedItems([]);
+  };
+
+  // Добавление оборудования
+  const handleAdd = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/equipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          id: `e${Math.floor(Math.random() * 1000000)}`
+        }),
+      });
+      
+      if (response.ok) {
+        await refreshData();
+        setIsAddModalOpen(false);
+        setFormData({
+          link: '/Statistics',
+          size: 'element-card',
+          name: '',
+          title: '',
+          value: 0
+        });
+      }
+    } catch (error) {
+      console.error('Error adding equipment:', error);
+    }
+  };
+
+  // Редактирование оборудования
+  const handleEdit = async () => {
+    if (!currentItem) return;
+    
+    try {
+      const response = await fetch(`http://localhost:8080/api/equipment/${currentItem.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...currentItem, ...formData }),
+      });
+      
+      if (response.ok) {
+        await refreshData();
+        setIsEditModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Error updating equipment:', error);
+    }
+  };
+
+  // Удаление оборудования
+  const handleDelete = async () => {
+    if (selectedItems.length === 0) return;
+    
+    try {
+      await Promise.all(
+        selectedItems.map(id => 
+          fetch(`http://localhost:8080/api/equipment/${id}`, { method: 'DELETE' })
+        )
+      );
+      await refreshData();
+    } catch (error) {
+      console.error('Error deleting equipment:', error);
+    }
+  };
+
+  // Расчет метрик
   const metrics: Metrics = useMemo(() => {
     if (workingLineElements.length === 0) return {
       efficiencyPercentage: 0,
@@ -159,7 +209,7 @@ export default function Home() {
 
   return (
     <div className='home-container'>
-      <Navigate/>
+      <Navigate />
 
       <div className='dashboard'>
         <div className='last-updated'>
@@ -167,86 +217,82 @@ export default function Home() {
         </div>
 
         <div className='equipment-section'>
-        <Box sx={{ 
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center', 
-      width: '100%',
-      p: 2, // добавим отступы
-      bgcolor: 'background.paper', // цвет фона
-      borderRadius: 1, // скругление углов
-      boxShadow: 1, // легкая тень
-      mb: 3 // отступ снизу
-    }}>
-      <h2 className='section-title' style={{ margin: 0 }}>Мониторинг оборудования</h2>
+          <Box sx={{ 
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center', 
+            width: '100%',
+            p: 2,
+            bgcolor: 'background.paper',
+            borderRadius: 1,
+            boxShadow: 1,
+            mb: 3
+          }}>
+            <h2 className='section-title' style={{ margin: 0 }}>Мониторинг оборудования</h2>
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
-        {/* Кнопка обновления */}
-        <Tooltip title="Обновить данные">
-          <IconButton color="primary" aria-label="refresh">
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Tooltip title="Обновить данные">
+                <IconButton color="primary" onClick={refreshData}>
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
 
-        {/* Кнопка добавления */}
-        <Button 
-          variant="contained" 
-          startIcon={<AddIcon />}
-          color="success"
-          sx={{
-            textTransform: 'none', // убираем uppercase
-            borderRadius: 2, // скругление
-            px: 3 // горизонтальные отступы
-          }}
-        >
-          Добавить
-        </Button>
+              <Button 
+                variant="contained" 
+                startIcon={<AddIcon />}
+                color="success"
+                sx={{ textTransform: 'none', borderRadius: 2, px: 3 }}
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                Добавить
+              </Button>
 
-        {/* Кнопка редактирования */}
-        <Button 
-          variant="outlined" 
-          startIcon={<EditIcon />}
-          color="info"
-          sx={{
-            textTransform: 'none',
-            borderRadius: 2,
-            px: 3
-          }}
-        >
-          Редактировать
-        </Button>
+              <Button 
+                variant="outlined" 
+                startIcon={<EditIcon />}
+                color="info"
+                sx={{ textTransform: 'none', borderRadius: 2, px: 3 }}
+                disabled={selectedItems.length !== 1}
+                onClick={() => {
+                  const item = workingLineElements.find(el => el.id === selectedItems[0]);
+                  if (item) {
+                    setCurrentItem(item);
+                    setFormData({
+                      link: item.link,
+                      size: item.size,
+                      name: item.name,
+                      title: item.title,
+                      value: item.value
+                    });
+                    setIsEditModalOpen(true);
+                  }
+                }}
+              >
+                Редактировать
+              </Button>
 
-        {/* Кнопка удаления */}
-        <Button 
-          variant="outlined" 
-          startIcon={<DeleteIcon />}
-          color="error"
-          sx={{
-            textTransform: 'none',
-            borderRadius: 2,
-            px: 3
-          }}
-        >
-          Удалить
-        </Button>
-      </Box>
-    </Box>
+              <Button 
+                variant="outlined" 
+                startIcon={<DeleteIcon />}
+                color="error"
+                sx={{ textTransform: 'none', borderRadius: 2, px: 3 }}
+                disabled={selectedItems.length === 0}
+                onClick={handleDelete}
+              >
+                Удалить ({selectedItems.length})
+              </Button>
+            </Box>
+          </Box>
+
           <div className='equipment-grid'>
-            {workingLineElements.map((item) => {
-              const status = item.value > 1500 ? 'error' : 
-                           item.value >= 1000 ? 'warning' : 'operational';
-              return (
-                <WorkingLineElement
-                  key={item.id}
-                  titleNameElemet={item.title}
-                  idElement={item.id}
-                  linkElement={item.link}
-                  nameElement={item.name}
-                  valueElement={item.value}
-                  size={item.size}
-                />
-              );
-            })}
+            {workingLineElements.map((item) => (
+              <WorkingLineElement
+                key={item.id}
+                {...item}
+                selected={selectedItems.includes(item.id)}
+                onSelect={() => handleSelectItem(item.id)}
+              />
+            ))}
           </div>
         </div>
 
@@ -273,6 +319,98 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Модальное окно добавления */}
+      <Dialog open={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+        <DialogTitle>Добавить оборудование</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Название"
+            fullWidth
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+          />
+          <TextField
+            margin="dense"
+            label="Заголовок"
+            fullWidth
+            value={formData.title}
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
+          />
+          <TextField
+            margin="dense"
+            label="Значение"
+            type="number"
+            fullWidth
+            value={formData.value}
+            onChange={(e) => setFormData({...formData, value: Number(e.target.value)})}
+          />
+          <TextField
+            margin="dense"
+            label="Размер"
+            select
+            fullWidth
+            value={formData.size}
+            onChange={(e) => setFormData({...formData, size: e.target.value})}
+          >
+            <option value="element-card">Обычный</option>
+            <option value="element-card-wide">Широкий</option>
+          </TextField>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddModalOpen(false)}>Отмена</Button>
+          <Button onClick={handleAdd} variant="contained" color="primary">
+            Сохранить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Модальное окно редактирования */}
+      <Dialog open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+        <DialogTitle>Редактировать оборудование</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Название"
+            fullWidth
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+          />
+          <TextField
+            margin="dense"
+            label="Заголовок"
+            fullWidth
+            value={formData.title}
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
+          />
+          <TextField
+            margin="dense"
+            label="Значение"
+            type="number"
+            fullWidth
+            value={formData.value}
+            onChange={(e) => setFormData({...formData, value: Number(e.target.value)})}
+          />
+          <TextField
+            margin="dense"
+            label="Размер"
+            select
+            fullWidth
+            value={formData.size}
+            onChange={(e) => setFormData({...formData, size: e.target.value})}
+          >
+            <option value="element-card">Обычный</option>
+            <option value="element-card-wide">Широкий</option>
+          </TextField>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsEditModalOpen(false)}>Отмена</Button>
+          <Button onClick={handleEdit} variant="contained" color="primary">
+            Сохранить
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

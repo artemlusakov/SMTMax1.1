@@ -223,3 +223,10 @@ app.use((req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+
+// GET	/api/equipment	Получить все записи
+// GET	/api/equipment/:id	Получить одну запись по ID
+// POST	/api/equipment	Создать новую запись
+// PUT	/api/equipment/:id	Обновить запись по ID
+// DELETE	/api/equipment/:id	Удалить запись по ID
