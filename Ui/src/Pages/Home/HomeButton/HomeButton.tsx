@@ -2,14 +2,12 @@ import React from 'react';
 import { 
   Box, 
   Button, 
-  IconButton, 
-  Tooltip 
 } from '@mui/material';
 import { 
   Add as AddIcon, 
   Edit as EditIcon, 
   Delete as DeleteIcon, 
-  Refresh as RefreshIcon 
+
 } from '@mui/icons-material';
 
 interface HomeButtonsProps {
@@ -24,7 +22,6 @@ interface HomeButtonsProps {
 
 const HomeButtons: React.FC<HomeButtonsProps> = ({
   selectedCount,
-  onRefresh,
   onAdd,
   onEdit,
   onDelete,

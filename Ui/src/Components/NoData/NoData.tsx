@@ -4,8 +4,7 @@ import {
   Typography,
   Fade,
   SvgIcon,
-  styled,
-  useTheme
+  styled
 } from '@mui/material';
 import {
   Dataset as DatabaseIcon,
@@ -37,11 +36,9 @@ const StyledContainer = styled(Box)(({ theme }) => ({
   margin: '0 auto'
 }));
 
-// Тип для вариантов иконок
 type IconVariant = 'database' | 'warning' | 'info' | 'inbox';
 
-// Объект с иконками с явной типизацией
-const iconVariants: Record<IconVariant, typeof DatabaseIcon> = {
+const iconVariants: Record<IconVariant, React.ComponentType> = {
   database: DatabaseIcon,
   warning: WarningIcon,
   info: InfoIcon,
@@ -55,35 +52,40 @@ export default function NoData({
   animate = true,
   action
 }: NoDataProps) {
-  const theme = useTheme();
-  const iconColor = variant === 'warning' 
-    ? theme.palette.warning.main 
-    : variant === 'info' 
-      ? theme.palette.info.main 
-      : theme.palette.text.secondary;
-
-  // Типизированное получение иконки
-  const getIconComponent = () => {
+  const getIconComponent = (): React.ComponentType | React.ReactNode => {
     if (typeof icon !== 'string') return icon;
     return iconVariants[icon as IconVariant];
   };
 
   const IconComponent = getIconComponent();
 
+  const renderIcon = () => {
+    if (!IconComponent) return null;
+    
+    if (React.isValidElement(IconComponent)) {
+      return React.cloneElement(IconComponent, {
+ 
+      });
+    }
+
+    const Icon = IconComponent as React.ComponentType;
+    return (
+      <SvgIcon
+        component={Icon}
+        fontSize="large"
+        color={variant === 'warning' ? 'warning' : variant === 'info' ? 'info' : 'inherit'}
+        sx={{
+          fontSize: 64,
+          opacity: 0.8,
+          mb: 2
+        }}
+      />
+    );
+  };
+
   const content = (
     <StyledContainer>
-      {IconComponent && (
-        <SvgIcon
-          component={IconComponent}
-          fontSize="large"
-          color={variant === 'warning' ? 'warning' : variant === 'info' ? 'info' : 'inherit'}
-          sx={{
-            fontSize: 64,
-            opacity: 0.8,
-            mb: 2
-          }}
-        />
-      )}
+      {renderIcon()}
       
       <Typography variant="h6" color="textSecondary" gutterBottom>
         {message}
@@ -97,17 +99,9 @@ export default function NoData({
             : 'Записи в базе данных не найдены'}
       </Typography>
       
-      {action && (
-        <Box sx={{ mt: 2 }}>
-          {action}
-        </Box>
-      )}
+      {action && <Box sx={{ mt: 2 }}>{action}</Box>}
     </StyledContainer>
   );
 
-  return animate ? (
-    <Fade in timeout={500}>
-      {content}
-    </Fade>
-  ) : content;
+  return animate ? <Fade in timeout={500}>{content}</Fade> : content;
 }
