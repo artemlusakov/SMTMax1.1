@@ -7,6 +7,7 @@ import {
 import Navigate from '../../Components/Navigate/Navigate';
 import HomeButtons from './HomeButton/HomeButton';
 import WorkingLineElement from './LineElement/WorkingLineElement';
+import AddElementWindow from './HomeWindows/AddElementWindow';
 
 interface DataObject {
   id: string;
@@ -68,7 +69,7 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 5000);
+    const interval = setInterval(loadData, 1000);
     return () => clearInterval(interval);
   }, [loadData]);
 
@@ -306,52 +307,13 @@ export default function Home() {
 
       {/* Модальное окно добавления */}
       <Dialog open={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
-        <DialogTitle>Добавить оборудование</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="dense"
-            label="Название"
-            fullWidth
-            value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Заголовок"
-            fullWidth
-            value={formData.title}
-            onChange={(e) => setFormData({...formData, title: e.target.value})}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Значение"
-            type="number"
-            fullWidth
-            value={formData.value}
-            onChange={(e) => setFormData({...formData, value: Number(e.target.value)})}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Размер"
-            select
-            fullWidth
-            value={formData.size}
-            onChange={(e) => setFormData({...formData, size: e.target.value})}
-            SelectProps={{ native: true }}
-          >
-            <option value="element-card">Обычный</option>
-            <option value="element-card-wide">Широкий</option>
-          </TextField>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsAddModalOpen(false)}>Отмена</Button>
-          <Button onClick={handleAdd} variant="contained" color="primary">
-            Сохранить
-          </Button>
-        </DialogActions>
+      <AddElementWindow
+          open={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          formData={formData}
+          onFormChange={(field, value) => setFormData(prev => ({...prev, [field]: value}))}
+          onSave={handleAdd}
+        />
       </Dialog>
 
       {/* Модальное окно редактирования */}
