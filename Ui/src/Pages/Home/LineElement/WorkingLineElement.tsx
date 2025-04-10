@@ -9,13 +9,9 @@ interface Props {
   name: string;
   title: string;
   value: number;
-  titleNameElemet: string;
-  idElement: string;
-  linkElement: string;
-  nameElement: string;
-  valueElement?: number;
   selected: boolean;
   onSelect: () => void;
+  editMode: boolean;
 }
 
 export default function WorkingLineElement(props: Props) {
@@ -28,17 +24,19 @@ export default function WorkingLineElement(props: Props) {
   return (
     <Tooltip title={`${props.title} id: ${props.id}`}>
       <NavLink 
-        to={`${props.link}/${props.id}`}
+        to={props.editMode ? '#' : `${props.link}/${props.id}`} // Отключаем переход в режиме редактирования
         className={`WorkingLine__Element ${props.size} ${getStatusClass(props.value)} ${
           props.selected ? 'selected' : ''
         }`}
         onClick={(e) => {
-          e.preventDefault();
-          props.onSelect();
+          if (props.editMode) {
+            e.preventDefault();
+            props.onSelect();
+          }
         }}
       >
         <div>{props.name}</div>
-        {props.selected && <div className="selection-marker">✓</div>}
+        {props.editMode && props.selected && <div className="selection-marker">✓</div>}
       </NavLink>
     </Tooltip>
   );

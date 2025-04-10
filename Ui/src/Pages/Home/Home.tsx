@@ -1,24 +1,12 @@
 import './Home.css';
-import Navigate from '../../Components/Navigate/Navigate';
-import WorkingLineElement from '../Home/LineElement/WorkingLineElement';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
-  Box, 
-  Button, 
-  IconButton, 
-  Tooltip, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  TextField 
+  Box, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button,
+  Switch, FormControlLabel 
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
-  Edit as EditIcon, 
-  Delete as DeleteIcon, 
-  Refresh as RefreshIcon 
-} from '@mui/icons-material';
+import Navigate from '../../Components/Navigate/Navigate';
+import HomeButtons from './HomeButton/HomeButton';
+import WorkingLineElement from './LineElement/WorkingLineElement';
 
 interface DataObject {
   id: string;
@@ -49,11 +37,16 @@ const fetchEquipmentData = async (): Promise<DataObject[]> => {
 };
 
 export default function Home() {
+  // Состояния данных
   const [workingLineElements, setWorkingLineElements] = useState<DataObject[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  
+  // Состояния модальных окон
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  // Состояния форм
   const [currentItem, setCurrentItem] = useState<DataObject | null>(null);
   const [formData, setFormData] = useState<Omit<DataObject, 'id'>>({
     link: '/Statistics',
@@ -62,39 +55,44 @@ export default function Home() {
     title: '',
     value: 0
   });
+  
+  // Режим редактирования
+  const [editMode, setEditMode] = useState(false);
 
   // Загрузка данных
-  useEffect(() => {
-    const loadData = async () => {
-      const data = await fetchEquipmentData();
-      setWorkingLineElements(data);
-      setLastUpdated(new Date());
-    };
+  const loadData = useCallback(async () => {
+    const data = await fetchEquipmentData();
+    setWorkingLineElements(data);
+    setLastUpdated(new Date());
+  }, []);
 
+  useEffect(() => {
     loadData();
     const interval = setInterval(loadData, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadData]);
 
-  // Выбор элементов
-  const handleSelectItem = (id: string) => {
+  // Обработчики действий
+  const refreshData = useCallback(async () => {
+    await loadData();
+    setSelectedItems([]);
+  }, [loadData]);
+
+  const handleSelectItem = useCallback((id: string) => {
+    if (!editMode) {
+      // Обычный режим - переход по ссылке
+      window.location.href = `/Statistics/${id}`;
+      return;
+    }
+    // Режим редактирования - выбор элемента
     setSelectedItems(prev => 
       prev.includes(id) 
         ? prev.filter(itemId => itemId !== id) 
         : [...prev, id]
     );
-  };
+  }, [editMode]);
 
-  // Обновление данных
-  const refreshData = async () => {
-    const data = await fetchEquipmentData();
-    setWorkingLineElements(data);
-    setLastUpdated(new Date());
-    setSelectedItems([]);
-  };
-
-  // Добавление оборудования
-  const handleAdd = async () => {
+  const handleAdd = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:8080/api/equipment', {
         method: 'POST',
@@ -119,10 +117,9 @@ export default function Home() {
     } catch (error) {
       console.error('Error adding equipment:', error);
     }
-  };
+  }, [formData, refreshData]);
 
-  // Редактирование оборудования
-  const handleEdit = async () => {
+  const handleEdit = useCallback(async () => {
     if (!currentItem) return;
     
     try {
@@ -139,10 +136,9 @@ export default function Home() {
     } catch (error) {
       console.error('Error updating equipment:', error);
     }
-  };
+  }, [currentItem, formData, refreshData]);
 
-  // Удаление оборудования
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (selectedItems.length === 0) return;
     
     try {
@@ -155,7 +151,7 @@ export default function Home() {
     } catch (error) {
       console.error('Error deleting equipment:', error);
     }
-  };
+  }, [selectedItems, refreshData]);
 
   // Расчет метрик
   const metrics: Metrics = useMemo(() => {
@@ -230,30 +226,28 @@ export default function Home() {
           }}>
             <h2 className='section-title' style={{ margin: 0 }}>Мониторинг оборудования</h2>
 
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Tooltip title="Обновить данные">
-                <IconButton color="primary" onClick={refreshData}>
-                  <RefreshIcon />
-                </IconButton>
-              </Tooltip>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editMode}
+                    onChange={() => {
+                      setEditMode(!editMode);
+                      setSelectedItems([]);
+                    }}
+                    color="primary"
+                  />
+                }
+                label="Режим редактирования"
+                labelPlacement="start"
+              />
 
-              <Button 
-                variant="contained" 
-                startIcon={<AddIcon />}
-                color="success"
-                sx={{ textTransform: 'none', borderRadius: 2, px: 3 }}
-                onClick={() => setIsAddModalOpen(true)}
-              >
-                Добавить
-              </Button>
-
-              <Button 
-                variant="outlined" 
-                startIcon={<EditIcon />}
-                color="info"
-                sx={{ textTransform: 'none', borderRadius: 2, px: 3 }}
-                disabled={selectedItems.length !== 1}
-                onClick={() => {
+              <HomeButtons
+                selectedCount={selectedItems.length}
+                hasSingleSelection={selectedItems.length === 1}
+                onRefresh={refreshData}
+                onAdd={() => setIsAddModalOpen(true)}
+                onEdit={() => {
                   const item = workingLineElements.find(el => el.id === selectedItems[0]);
                   if (item) {
                     setCurrentItem(item);
@@ -267,20 +261,9 @@ export default function Home() {
                     setIsEditModalOpen(true);
                   }
                 }}
-              >
-                Редактировать
-              </Button>
-
-              <Button 
-                variant="outlined" 
-                startIcon={<DeleteIcon />}
-                color="error"
-                sx={{ textTransform: 'none', borderRadius: 2, px: 3 }}
-                disabled={selectedItems.length === 0}
-                onClick={handleDelete}
-              >
-                Удалить ({selectedItems.length})
-              </Button>
+                onDelete={handleDelete}
+                editMode={editMode}
+              />
             </Box>
           </Box>
 
@@ -291,6 +274,7 @@ export default function Home() {
                 {...item}
                 selected={selectedItems.includes(item.id)}
                 onSelect={() => handleSelectItem(item.id)}
+                editMode={editMode}
               />
             ))}
           </div>
@@ -330,6 +314,7 @@ export default function Home() {
             fullWidth
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
+            sx={{ mb: 2 }}
           />
           <TextField
             margin="dense"
@@ -337,6 +322,7 @@ export default function Home() {
             fullWidth
             value={formData.title}
             onChange={(e) => setFormData({...formData, title: e.target.value})}
+            sx={{ mb: 2 }}
           />
           <TextField
             margin="dense"
@@ -345,6 +331,7 @@ export default function Home() {
             fullWidth
             value={formData.value}
             onChange={(e) => setFormData({...formData, value: Number(e.target.value)})}
+            sx={{ mb: 2 }}
           />
           <TextField
             margin="dense"
@@ -353,6 +340,7 @@ export default function Home() {
             fullWidth
             value={formData.size}
             onChange={(e) => setFormData({...formData, size: e.target.value})}
+            SelectProps={{ native: true }}
           >
             <option value="element-card">Обычный</option>
             <option value="element-card-wide">Широкий</option>
@@ -376,6 +364,7 @@ export default function Home() {
             fullWidth
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
+            sx={{ mb: 2 }}
           />
           <TextField
             margin="dense"
@@ -383,6 +372,7 @@ export default function Home() {
             fullWidth
             value={formData.title}
             onChange={(e) => setFormData({...formData, title: e.target.value})}
+            sx={{ mb: 2 }}
           />
           <TextField
             margin="dense"
@@ -391,6 +381,7 @@ export default function Home() {
             fullWidth
             value={formData.value}
             onChange={(e) => setFormData({...formData, value: Number(e.target.value)})}
+            sx={{ mb: 2 }}
           />
           <TextField
             margin="dense"
@@ -399,6 +390,7 @@ export default function Home() {
             fullWidth
             value={formData.size}
             onChange={(e) => setFormData({...formData, size: e.target.value})}
+            SelectProps={{ native: true }}
           >
             <option value="element-card">Обычный</option>
             <option value="element-card-wide">Широкий</option>
