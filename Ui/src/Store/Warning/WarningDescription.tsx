@@ -21,7 +21,7 @@ export const getErrorDescription = (code: string): string => {
         case '5805':
             return 'Клапан клеща закрыт';
         case '552':
-            return 'Не удалось найти детали';
+            return 'Не удалось найти деталь';
         case '4573':
             return 'Превышен счетчик повторных попыток подъема детали для подающего устройства';
         case '2498':
