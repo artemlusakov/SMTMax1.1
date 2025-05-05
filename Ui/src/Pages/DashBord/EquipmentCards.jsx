@@ -122,6 +122,8 @@ export default function EquipmentCards({
 }) {
   const [data, setData] = useState([]);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [equipmentToDelete, setEquipmentToDelete] = useState(null);
   const [currentEquipment, setCurrentEquipment] = useState(null);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -160,6 +162,24 @@ export default function EquipmentCards({
       errors: equip.stats.errors
     });
     setEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (id) => {
+    setEquipmentToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (equipmentToDelete) {
+      onDelete(equipmentToDelete);
+      setDeleteModalOpen(false);
+      setEquipmentToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setEquipmentToDelete(null);
   };
 
   const handleEditSubmit = () => {
@@ -255,7 +275,7 @@ export default function EquipmentCards({
                         backgroundColor: 'error.light'
                       }
                     }}
-                    onClick={() => onDelete(equip.id)}
+                    onClick={() => handleDeleteClick(equip.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -430,6 +450,22 @@ export default function EquipmentCards({
         <DialogActions>
           <Button onClick={() => setEditModalOpen(false)}>Отмена</Button>
           <Button onClick={handleEditSubmit} variant="contained">Сохранить</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Модальное окно подтверждения удаления */}
+      <Dialog open={deleteModalOpen} onClose={handleCancelDelete}>
+        <DialogTitle>Подтверждение удаления</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Вы точно хотите удалить оборудование с ID {equipmentToDelete}?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete}>Отмена</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Удалить
+          </Button>
         </DialogActions>
       </Dialog>
     </>
