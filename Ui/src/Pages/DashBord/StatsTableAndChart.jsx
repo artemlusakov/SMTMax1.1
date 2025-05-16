@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 
 const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+
 export default function StatsTableAndChart({ equipmentData, time }) {
   const [hourlyProductionData, setHourlyProductionData] = useState({
     hours: ['0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00'],

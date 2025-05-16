@@ -3,36 +3,19 @@ import { Box, Typography, Switch, FormControlLabel, Button, Dialog, DialogTitle,
 import { motion } from 'framer-motion';
 import EquipmentCards from "./EquipmentCards";
 import StatsTableAndChart from "./StatsTableAndChart";
+import Clock from "../../Components/Clock/Clock";
+
 
 export default function Dashboard() {
-  const [time, setTime] = useState('00-00-0000 00:00:00');
   const [equipmentData, setEquipmentData] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false); // Состояние админ-режима
-  const [openDialog, setOpenDialog] = useState(false); // Состояние диалога
-  const [newCard, setNewCard] = useState({ // Состояние новой карточки
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newCard, setNewCard] = useState({
     id: '',
     name: '',
     image: ''
   });
 
-  // Обновление времени
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      const day = String(now.getDate()).padStart(2,'0');
-      const month = String(now.getMonth() + 1).padStart(2,'0');
-      const year = now.getFullYear();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      
-      setTime(`${day}-${month}-${year} ${hours}:${minutes}:${seconds}`);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  // Функция для добавления новой карточки
   const handleAddCard = () => {
     const updatedData = [
       ...equipmentData,
@@ -46,13 +29,11 @@ export default function Dashboard() {
     setOpenDialog(false);
   };
 
-  // Функция для удаления карточки
   const handleDeleteCard = (id) => {
     const updatedData = equipmentData.filter(card => card.id !== id);
     setEquipmentData(updatedData);
   };
 
-  // Функция для генерации случайных статистических данных (как в EquipmentCards)
   const generateEquipmentStats = () => {
     const isWorking = Math.random() > 0.1;
     const status = isWorking ? "Работает" : ['На обслуживании', 'Ожидание', 'Авария'][Math.floor(Math.random() * 3)];
@@ -82,10 +63,9 @@ export default function Dashboard() {
             variant="h4" 
             gutterBottom
           >
-            Текущая смена: {time}
+            <Clock prefix="Текущая смена:" />
           </Typography>
 
-          {/* Переключатель админ-режима */}
           <FormControlLabel
             control={
               <Switch 
@@ -99,7 +79,6 @@ export default function Dashboard() {
         </Box>
       </motion.div>
 
-      {/* Кнопка добавления новой карточки (видна только админу) */}
       {isAdmin && (
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
           <Button 
@@ -112,18 +91,15 @@ export default function Dashboard() {
         </Box>
       )}
 
-      {/* Компонент карточек с передачей функции удаления и флага админа */}
       <EquipmentCards 
-        time={time} 
         setEquipmentData={setEquipmentData} 
         equipmentData={equipmentData}
         isAdmin={isAdmin}
         onDelete={handleDeleteCard}
       />
       
-      <StatsTableAndChart equipmentData={equipmentData} time={time} />
+      <StatsTableAndChart equipmentData={equipmentData} />
 
-      {/* Диалог добавления новой карточки */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Добавить новое оборудование</DialogTitle>
         <DialogContent>
