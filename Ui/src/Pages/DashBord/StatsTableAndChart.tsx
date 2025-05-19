@@ -1,20 +1,62 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Typography } from "@mui/material";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  Box, 
+  Typography,
+  Zoom 
+} from "@mui/material";
 import { LineChart } from '@mui/x-charts/LineChart';
 import { motion } from 'framer-motion';
-import { Zoom } from "@mui/material";
 import { useState, useEffect } from 'react';
 
-const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+interface EquipmentData {
+  id: string;
+  name: string;
+  // Новый формат (плоский)
+  status?: string;
+  efficiency?: string;
+  temperature?: string;
+  output?: string;
+  errors?: string;
+  // Старый формат (вложенный)
+  stats?: {
+    status?: string;
+    efficiency?: string;
+    temperature?: string;
+    output?: string;
+    errors?: string;
+  };
+}
 
+interface HourlyProductionData {
+  hours: string[];
+  units: number[];
+  defects: number[];
+}
 
-export default function StatsTableAndChart({ equipmentData, time }) {
-  const [hourlyProductionData, setHourlyProductionData] = useState({
+interface StatsTableAndChartProps {
+  equipmentData?: EquipmentData[];
+  time?: string;
+}
+
+const randomInRange = (min: number, max: number): number => 
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
+export default function StatsTableAndChart({ 
+  equipmentData = [], 
+  time = '' 
+}: StatsTableAndChartProps) {
+  const [hourlyProductionData, setHourlyProductionData] = useState<HourlyProductionData>({
     hours: ['0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00'],
     units: Array(8).fill(0).map(() => randomInRange(800, 1500)),
     defects: Array(8).fill(0).map(() => randomInRange(5, 25))
   });
 
-  // Обновление данных графика
   useEffect(() => {
     const interval = setInterval(() => {
       setHourlyProductionData(prev => ({
@@ -35,15 +77,51 @@ export default function StatsTableAndChart({ equipmentData, time }) {
     return () => clearInterval(interval);
   }, []);
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status?: string): 'success' | 'warning' | 'info' | 'error' | 'default' => {
     switch(status) {
-      case 'Работает': return 'success';
-      case 'На обслуживании': return 'warning';
-      case 'Ожидание': return 'info';
-      case 'Авария': return 'error';
-      default: return 'default';
+      case 'Работает': 
+      case '1': // Для числовых статусов
+        return 'success';
+      case 'На обслуживании': 
+      case '2':
+        return 'warning';
+      case 'Ожидание': 
+      case '3':
+        return 'info';
+      case 'Авария': 
+      case '4':
+        return 'error';
+      default: 
+        return 'default';
     }
   };
+
+  const paramLabels = [
+    { key: 'status', label: 'Статус' },
+    { key: 'efficiency', label: 'Эффективность' },
+    { key: 'temperature', label: 'Температура' },
+    { key: 'output', label: 'Выработка' },
+    { key: 'errors', label: 'Ошибки' }
+  ];
+
+  // Функция для получения значения параметра с учетом обоих форматов
+  const getEquipmentValue = (equip: EquipmentData, param: string): string => {
+    // Сначала проверяем плоский формат
+    if (param in equip) {
+      return equip[param as keyof EquipmentData] as string || 'N/A';
+    }
+    // Затем проверяем вложенный stats
+    return equip.stats?.[param] || 'N/A';
+  };
+
+  // Если нет данных, показываем сообщение
+  if (!equipmentData || equipmentData.length === 0) {
+    return (
+      <Box sx={{ p: 3, textAlign: 'center' }}>
+        <Typography variant="h6">Нет данных об оборудовании</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', lg: 'row' } }}>
@@ -76,36 +154,33 @@ export default function StatsTableAndChart({ equipmentData, time }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {['status', 'efficiency', 'temperature', 'output', 'errors'].map((param) => (
-                <TableRow key={param}>
+              {paramLabels.map(({ key, label }) => (
+                <TableRow key={key}>
                   <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
-                    {{
-                      status: 'Статус',
-                      efficiency: 'Эффективность',
-                      temperature: 'Температура',
-                      output: 'Выработка',
-                      errors: 'Ошибки'
-                    }[param]}
+                    {label}
                   </TableCell>
-                  {equipmentData.map((equip) => (
-                    <TableCell 
-                      key={`${param}-${equip.id}`} 
-                      align="right"
-                      sx={{ 
-                        color: param === 'status' 
-                          ? getStatusColor(equip.stats[param]) === 'success' 
-                            ? 'success.main' 
-                            : getStatusColor(equip.stats[param]) === 'error' 
-                              ? 'error.main' 
-                              : 'warning.main'
-                          : param === 'errors' && parseInt(equip.stats[param]) > 5
-                            ? 'error.main'
-                            : 'inherit'
-                      }}
-                    >
-                      {equip.stats[param]}
-                    </TableCell>
-                  ))}
+                  {equipmentData.map((equip) => {
+                    const value = getEquipmentValue(equip, key);
+                    const isErrorParam = key === 'errors';
+                    const isHighError = isErrorParam && !isNaN(Number(value)) && Number(value) > 5;
+                    const statusColor = key === 'status' ? getStatusColor(value) : undefined;
+
+                    return (
+                      <TableCell 
+                        key={`${key}-${equip.id}`} 
+                        align="right"
+                        sx={{ 
+                          color: statusColor 
+                            ? `${statusColor}.main`
+                            : isHighError
+                              ? 'error.main'
+                              : 'inherit'
+                        }}
+                      >
+                        {value}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>
@@ -169,9 +244,11 @@ export default function StatsTableAndChart({ equipmentData, time }) {
               />
             </div>
           </Zoom>
-          <Typography variant="caption" display="block" align="center" sx={{ mt: 1 }}>
-            Последнее обновление: {time}
-          </Typography>
+          {time && (
+            <Typography variant="caption" display="block" align="center" sx={{ mt: 1 }}>
+              Последнее обновление: {time}
+            </Typography>
+          )}
         </Box>
       </motion.div>
     </Box>
