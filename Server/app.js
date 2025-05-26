@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import equipmentRoutes from './routes/equipment.js';
 import dashboardRoutes from './routes/dashboard.js';
+import equipmentFilesRoutes from './routes/equipmentFiles.js'; 
 
 const app = express();
 
@@ -10,7 +11,7 @@ app.use(cors());
 
 app.use('/api/equipment', equipmentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
+app.use('/api/equipment', equipmentFilesRoutes); 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
