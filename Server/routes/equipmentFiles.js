@@ -1,57 +1,85 @@
 import { Router } from 'express';
-import path from 'path';
-import fs from 'fs/promises';
 import { dbPromise } from '../db/index.js';
 
 const router = Router();
 
-// GET Error.json для оборудования
-router.get('/:id/Error.json', async (req, res, next) => {
+// POST для загрузки Error.json
+router.post('/:id/Error.json', async (req, res, next) => {
   try {
     const db = await dbPromise;
-    const equipment = await db.get('SELECT id, name FROM Equipment WHERE id = ?', [req.params.id]);
+    const { id } = req.params;
+    const errorData = req.body;
     
+    // Проверяем существование оборудования
+    const equipment = await db.get('SELECT id FROM Equipment WHERE id = ?', [id]);
     if (!equipment) {
       return res.status(404).json({ error: 'Equipment not found' });
     }
-
-    const filePath = path.join(process.env.DATA_DIR || 'data', 'equipment', equipment.id, 'Error.json');
     
-    try {
-      const data = await fs.readFile(filePath, 'utf-8');
-      res.type('json').send(data);
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        return res.status(404).json({ error: 'Error.json not found for this equipment' });
-      }
-      throw err;
-    }
+    // Сохраняем данные в базу
+    await db.run(
+      'INSERT OR REPLACE INTO EquipmentErrors (equipmentId, data) VALUES (?, ?)',
+      [id, JSON.stringify(errorData)]
+    );
+    
+    res.status(200).json({ success: true });
   } catch (err) {
     next(err);
   }
 });
 
-// GET Operate.json для оборудования
-router.get('/:id/Operate.json', async (req, res, next) => {
+// POST для загрузки Operate.json
+router.post('/:id/Operate.json', async (req, res, next) => {
   try {
     const db = await dbPromise;
-    const equipment = await db.get('SELECT id, name FROM Equipment WHERE id = ?', [req.params.id]);
+    const { id } = req.params;
+    const operateData = req.body;
     
+    const equipment = await db.get('SELECT id FROM Equipment WHERE id = ?', [id]);
     if (!equipment) {
       return res.status(404).json({ error: 'Equipment not found' });
     }
-
-    const filePath = path.join(process.env.DATA_DIR || 'data', 'equipment', equipment.id, 'Operate.json');
     
-    try {
-      const data = await fs.readFile(filePath, 'utf-8');
-      res.type('json').send(data);
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        return res.status(404).json({ error: 'Operate.json not found for this equipment' });
-      }
-      throw err;
+    await db.run(
+      'INSERT OR REPLACE INTO EquipmentOperate (equipmentId, data) VALUES (?, ?)',
+      [id, JSON.stringify(operateData)]
+    );
+    
+    res.status(200).json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET Error.json
+router.get('/:id/Error.json', async (req, res, next) => {
+  try {
+    const db = await dbPromise;
+    const { id } = req.params;
+    
+    const row = await db.get('SELECT data FROM EquipmentErrors WHERE equipmentId = ?', [id]);
+    if (!row) {
+      return res.status(404).json({ error: 'Error data not found' });
     }
+    
+    res.type('json').send(row.data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET Operate.json
+router.get('/:id/Operate.json', async (req, res, next) => {
+  try {
+    const db = await dbPromise;
+    const { id } = req.params;
+    
+    const row = await db.get('SELECT data FROM EquipmentOperate WHERE equipmentId = ?', [id]);
+    if (!row) {
+      return res.status(404).json({ error: 'Operate data not found' });
+    }
+    
+    res.type('json').send(row.data);
   } catch (err) {
     next(err);
   }

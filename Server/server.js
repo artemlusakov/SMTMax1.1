@@ -1,18 +1,34 @@
-import app from './app.js';
-import { dbPromise } from './db/index.js';
+import express from 'express';
+import cors from 'cors';
+import equipmentRoutes from './routes/equipment.js';
+import dashboardRoutes from './routes/dashboard.js';
+import equipmentFilesRoutes from './routes/equipmentFiles.js';
 
-const port = process.env.PORT || 8080;
+const app = express();
 
-dbPromise
-  .then(() => {
-    app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
-      console.log('Available routes:');
-      console.log(`- GET/POST/PUT/DELETE /api/equipment[/:id]`);
-      console.log(`- GET/POST/PUT/DELETE /api/dashboard[/:id]`);
-    });
-  })
-  .catch(err => {
-    console.error('Database initialization failed:', err);
-    process.exit(1);
-  });
+// Middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(cors());
+
+// Routes
+app.use('/api/equipment', equipmentRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/equipment', equipmentFilesRoutes);
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+export default app;

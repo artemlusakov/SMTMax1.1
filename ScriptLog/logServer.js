@@ -2,8 +2,8 @@ import { dbPromise } from '../Server/db/index.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 
-// Получаем текущий путь к файлу
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -24,15 +24,12 @@ function parseErrorLogLine(line) {
   const [, date, time, message] = match;
   const datetime = `${date} ${time}`;
 
-  // Извлекаем Feeder из сообщения
   const feederMatch = message.match(/(?:^|\s)(F\d{1,3}|R\d{1,3})(?:\s|$)/);
   const feeder = feederMatch ? feederMatch[1].trim() : '';
 
-  // Извлекаем Head из сообщения
   const headMatch = message.match(/(?:^|\s)(Head\d+)/);
   const head = headMatch ? headMatch[1].trim() : 'Unknown';
 
-  // Парсинг специфичных сообщений
   let parsedMessage = {};
   if (message.includes("Failed to pick up a part properly")) {
     const partRegex = /Part (.*)/;
@@ -76,18 +73,14 @@ function parseOperateLogLine(line) {
   const [, date, time, message] = match;
   const datetime = `${date}T${time}`;
 
-  // Регулярное выражение для поиска фидера
   const feederRegex = /\s[RF]\d{1,3}\s/g;
-
-  let parsedMessage = {};
   let feederMatch = feederRegex.exec(message);
 
-  // Извлечение информации о фидере
+  let parsedMessage = {};
   if (feederMatch) {
     parsedMessage.feeder = feederMatch[0].trim();
   }
 
-  // Парсинг содержимого сообщения
   if (message.includes("Failed to pick up a part properly")) {
     const partRegex = /Part (.*)/;
     const partMatch = message.match(partRegex);
@@ -118,49 +111,61 @@ function parseOperateLogLine(line) {
   };
 }
 
-// Функция обработки одного лог-файла
-async function processLogFile(inputPath, outputPath, parseFunction, logType) {
-  console.log(`Processing ${logType} log: ${inputPath}`);
+// Функция для отправки данных на сервер
+async function sendDataToServer(equipmentId, data, type) {
+  const url = `http://localhost:8080/api/equipment/${equipmentId}/${type}.json`;
   
   try {
-    // Проверяем существование исходного файла
-    try {
-      await fs.access(inputPath);
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        console.error(`${logType} log file not found: ${inputPath}`);
-        return;
-      }
-      throw err;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    
+    console.log(`Successfully sent ${type} data for ${equipmentId}`);
+    return await response.json();
+  } catch (error) {
+    console.error(`Error sending ${type} data to server:`, error);
+    throw error;
+  }
+}
 
-    // Читаем и обрабатываем файл
+// Функция обработки логов
+async function processLogFile(inputPath, equipmentId, parseFunction, logType) {
+  console.log(`Processing ${logType} log for ${equipmentId}: ${inputPath}`);
+  
+  try {
+    await fs.access(inputPath);
     const data = await fs.readFile(inputPath, 'utf-8');
     const lines = data.split('\n').filter(line => line.trim() !== '');
     
     console.log(`Found ${lines.length} lines in ${logType} log`);
     
     const jsonObjects = lines.map(parseFunction).filter(obj => obj !== null);
+    await sendDataToServer(equipmentId, jsonObjects, logType);
     
-    // Записываем результат в JSON
-    await fs.writeFile(outputPath, JSON.stringify(jsonObjects, null, 2));
-    console.log(`Successfully created ${outputPath} with ${jsonObjects.length} entries`);
-    
+    console.log(`Successfully processed ${logType} data for ${equipmentId}`);
   } catch (err) {
+    if (err.code === 'ENOENT') {
+      console.error(`${logType} log file not found: ${inputPath}`);
+      return;
+    }
     console.error(`Error processing ${logType} log file ${inputPath}:`, err);
     throw err;
   }
 }
 
-// Основная функция обработки логов оборудования
+// Основная функция
 async function processEquipmentLogs() {
-  // Пути относительно расположения logServer.js
-  const LOG_DIR = path.join(__dirname, '..', 'Server', 'logs');
-  const DATA_DIR = path.join(__dirname, '..', 'UI', 'public');
+  const LOG_DIR = process.env.LOG_DIR || path.join(__dirname, '..', 'Server', 'logs');
   
-  console.log(`Starting log processing...`);
-  console.log(`LOG_DIR: ${LOG_DIR}`);
-  console.log(`DATA_DIR: ${DATA_DIR}`);
+  console.log(`Starting log processing from: ${LOG_DIR}`);
 
   try {
     const db = await dbPromise;
@@ -169,44 +174,23 @@ async function processEquipmentLogs() {
     console.log(`Found ${equipmentList.length} equipment items to process`);
     
     for (const equipment of equipmentList) {
-      console.log(`Processing logs for equipment ${equipment.id} (${equipment.name})...`);
+      console.log(`Processing logs for ${equipment.id} (${equipment.name})...`);
       
-      const equipmentDir = path.join(DATA_DIR, equipment.id);
-      
-      // Создаем директорию для оборудования
-      try {
-        await fs.mkdir(equipmentDir, { recursive: true });
-        console.log(`Created directory: ${equipmentDir}`);
-      } catch (err) {
-        if (err.code !== 'EEXIST') throw err;
-        console.log(`Directory already exists: ${equipmentDir}`);
-      }
-      
-      // Обрабатываем Error.log
+      // Обработка Error.log
       const errorLogPath = path.join(LOG_DIR, `${equipment.name}_Error.log`);
-      await processLogFile(
-        errorLogPath, 
-        path.join(equipmentDir, 'Error.json'), 
-        parseErrorLogLine,
-        'Error'
-      );
+      await processLogFile(errorLogPath, equipment.id, parseErrorLogLine, 'Error');
       
-      // Обрабатываем Operate.log
+      // Обработка Operate.log
       const operateLogPath = path.join(LOG_DIR, `${equipment.name}_Operate.log`);
-      await processLogFile(
-        operateLogPath, 
-        path.join(equipmentDir, 'Operate.json'), 
-        parseOperateLogLine,
-        'Operate'
-      );
+      await processLogFile(operateLogPath, equipment.id, parseOperateLogLine, 'Operate');
     }
     
-    console.log('All equipment logs processed successfully');
+    console.log('All equipment logs processed and sent to server');
   } catch (err) {
     console.error('Error processing equipment logs:', err);
     process.exit(1);
   }
 }
 
-// Запускаем обработку логов
+// Запуск обработки
 processEquipmentLogs();
