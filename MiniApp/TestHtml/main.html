@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Отправка логов</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, button { padding: 8px; margin: 5px 0; }
+        #status { color: green; }
+        #error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Отправка логов на сервер</h1>
+    <label for="machineId">ID оборудования:</label><br>
+    <input type="text" id="machineId" placeholder="e112415"><br>
+    <label for="folderPath">Путь к папке с логами:</label><br>
+    <input type="text" id="folderPath" placeholder="C:\Users\Zero\Desktop\Log"><br>
+    <button onclick="sendLogs()">Отправить логи</button>
+    <div id="status"></div>
+    <div id="error"></div>
+
+    <script>
+        async function sendLogs() {
+            const machineId = document.getElementById('machineId').value;
+            const folderPath = document.getElementById('folderPath').value;
+            const statusDiv = document.getElementById('status');
+            const errorDiv = document.getElementById('error');
+
+            if (!machineId || !folderPath) {
+                errorDiv.textContent = "Заполните ID оборудования и путь к папке!";
+                return;
+            }
+
+            try {
+                // Эмуляция чтения файлов (в реальности используйте <input type="file" webkitdirectory>)
+                const files = [
+                    { name: "Error.log", content: "Пример содержимого Error.log" },
+                    { name: "Operate.log", content: "Пример содержимого Operate.log" }
+                ];
+
+                // Отправка каждого файла
+                for (const file of files) {
+                    const response = await fetch('http://localhost:3000/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            machineId,
+                            filename: file.name,
+                            content: file.content
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка при отправке ${file.name}`);
+                    }
+                }
+
+                statusDiv.textContent = `Логи успешно отправлены для станка ${machineId}!`;
+                errorDiv.textContent = "";
+            } catch (err) {
+                errorDiv.textContent = `Ошибка: ${err.message}`;
+                statusDiv.textContent = "";
+            }
+        }
+    </script>
+</body>
+</html>
