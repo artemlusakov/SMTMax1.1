@@ -1,67 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Отправка логов</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Editor</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        input, button { padding: 8px; margin: 5px 0; }
-        #status { color: green; }
-        #error { color: red; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
     </style>
 </head>
 <body>
-    <h1>Отправка логов на сервер</h1>
-    <label for="machineId">ID оборудования:</label><br>
-    <input type="text" id="machineId" placeholder="e112415"><br>
-    <label for="folderPath">Путь к папке с логами:</label><br>
-    <input type="text" id="folderPath" placeholder="C:\Users\Zero\Desktop\Log"><br>
-    <button onclick="sendLogs()">Отправить логи</button>
+    <h1>Configuration Editor</h1>
+    <div class="form-group">
+        <label for="machineId">Machine ID:</label>
+        <input type="text" id="machineId" placeholder="Enter machine ID">
+    </div>
+    <div class="form-group">
+        <label for="folderPath">Folder Path:</label>
+        <input type="text" id="folderPath" placeholder="Enter folder path">
+    </div>
+    <div class="form-group">
+        <label for="serverUrl">Server URL:</label>
+        <input type="text" id="serverUrl" placeholder="Enter server URL">
+    </div>
+    <button id="saveBtn">Save Configuration</button>
+    <button id="loadBtn">Load Configuration</button>
     <div id="status"></div>
-    <div id="error"></div>
 
     <script>
-        async function sendLogs() {
-            const machineId = document.getElementById('machineId').value;
-            const folderPath = document.getElementById('folderPath').value;
+        document.addEventListener('DOMContentLoaded', function() {
+            const machineIdInput = document.getElementById('machineId');
+            const folderPathInput = document.getElementById('folderPath');
+            const serverUrlInput = document.getElementById('serverUrl');
+            const saveBtn = document.getElementById('saveBtn');
+            const loadBtn = document.getElementById('loadBtn');
             const statusDiv = document.getElementById('status');
-            const errorDiv = document.getElementById('error');
 
-            if (!machineId || !folderPath) {
-                errorDiv.textContent = "Заполните ID оборудования и путь к папке!";
-                return;
-            }
-
-            try {
-                // Эмуляция чтения файлов (в реальности используйте <input type="file" webkitdirectory>)
-                const files = [
-                    { name: "Error.log", content: "Пример содержимого Error.log" },
-                    { name: "Operate.log", content: "Пример содержимого Operate.log" }
-                ];
-
-                // Отправка каждого файла
-                for (const file of files) {
-                    const response = await fetch('http://localhost:3000/upload', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            machineId,
-                            filename: file.name,
-                            content: file.content
-                        })
+            // Load configuration
+            loadBtn.addEventListener('click', function() {
+                fetch('configurate.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        machineIdInput.value = data.machineId;
+                        folderPathInput.value = data.folderPath;
+                        serverUrlInput.value = data.serverUrl;
+                        showStatus('Configuration loaded successfully!', 'success');
+                    })
+                    .catch(error => {
+                        showStatus('Error loading configuration: ' + error.message, 'error');
                     });
+            });
 
-                    if (!response.ok) {
-                        throw new Error(`Ошибка при отправке ${file.name}`);
-                    }
-                }
+            // Save configuration
+            saveBtn.addEventListener('click', function() {
+                const config = {
+                    machineId: machineIdInput.value,
+                    folderPath: folderPathInput.value,
+                    serverUrl: serverUrlInput.value
+                };
 
-                statusDiv.textContent = `Логи успешно отправлены для станка ${machineId}!`;
-                errorDiv.textContent = "";
-            } catch (err) {
-                errorDiv.textContent = `Ошибка: ${err.message}`;
-                statusDiv.textContent = "";
+                // In a real app, you would send this to a server to save the file
+                // For demo purposes, we'll just show the JSON
+                const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download link
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'configurate.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showStatus('Configuration saved! Download started.', 'success');
+            });
+
+            function showStatus(message, type) {
+                statusDiv.textContent = message;
+                statusDiv.className = type;
+                statusDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
             }
-        }
+
+            // Try to load config automatically when page loads
+            loadBtn.click();
+        });
     </script>
 </body>
 </html>
