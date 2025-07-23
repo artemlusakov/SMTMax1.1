@@ -5,7 +5,7 @@ $textExtensions = @(".log", ".txt", ".dnt")  # Расширения тексто
 
 # Бесконечный цикл
 while ($true) {
-    # Check folder exists
+
     if (-not (Test-Path -Path $config.folderPath)) {
         Write-Host "Error: Folder $($config.folderPath) not found!" -ForegroundColor Red
         Start-Sleep -Seconds 60
@@ -29,7 +29,6 @@ while ($true) {
                 $isBinary = $true
             }
 
-            # Prepare request
             $body = @{
                 machineId = $config.machineId
                 filename = $file.Name
@@ -37,7 +36,7 @@ while ($true) {
                 isBinary = $isBinary
             } | ConvertTo-Json -Depth 5
 
-            # Send request
+
             $response = Invoke-RestMethod -Uri $config.serverUrl -Method Post -Body $body -ContentType "application/json"
             
             Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Successfully sent $($file.Name). Server response: $($response.status)" -ForegroundColor Green

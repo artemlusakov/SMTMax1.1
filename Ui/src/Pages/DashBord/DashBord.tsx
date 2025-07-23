@@ -7,7 +7,8 @@ import {
 import { motion } from 'framer-motion';
 import EquipmentCards from "./EquipmentCards";
 import StatsTableAndChart from "./StatsTableAndChart";
-import Clock from "../../Components/Clock/Clock";
+// import Clock from "../../Components/Clock/Clock";
+import { Clock } from "../../Components";
 
 interface Equipment {
   id: string;
